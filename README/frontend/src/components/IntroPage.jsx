@@ -5,7 +5,9 @@ import {
   Brain, Users, Target, TrendingUp, Award, Zap, 
   MessageSquare, BarChart3, Calendar, FileText, Mic, 
   Play, ArrowRight, CheckCircle2, ChevronUp, Github, 
-  Twitter, Linkedin, Check, AlertTriangle
+  Twitter, Linkedin, Check, AlertTriangle,
+  BookOpen, Globe, Code2, Layers, Headphones, Rocket,
+  Sun, Moon
 } from 'lucide-react';
 import '../styles/intro.css';
 
@@ -13,12 +15,17 @@ const IntroPage = () => {
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem('elevate-theme');
+    return saved || 'light';
   });
+
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
+
+  useEffect(() => {
+    localStorage.setItem('elevate-theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,39 +36,47 @@ const IntroPage = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  const fadeUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
-  };
+  const isDark = theme === 'dark';
 
+  // Animation variants
+  const fadeUp = {
+    hidden: { opacity: 0, y: 40 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } }
+  };
   const staggerContainer = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
+    visible: { opacity: 1, transition: { staggerChildren: 0.12 } }
   };
-
   const slideInLeft = {
-    hidden: { opacity: 0, x: -50 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: "easeOut" } }
+    hidden: { opacity: 0, x: -60 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } }
+  };
+  const slideInRight = {
+    hidden: { opacity: 0, x: 60 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } }
+  };
+  const scaleUp = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }
   };
 
-  const slideInRight = {
-    hidden: { opacity: 0, x: 50 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: "easeOut" } }
-  };
+  // Skeleton bar colors
+  const skelColor1 = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  const skelColor2 = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)';
+  const mutedText = isDark ? 'rgba(255,255,255,0.4)' : '#9ca3af';
+  const bodyText = isDark ? 'rgba(255,255,255,0.5)' : '#4b5563';
 
   return (
-    <div className="landing-page">
+    <div className="landing-page" data-theme={theme}>
       {/* Scroll Progress Bar */}
       <motion.div
-        style={{ scaleX, position: 'fixed', top: 0, left: 0, right: 0, height: '3px', background: 'var(--gradient-main)', transformOrigin: '0%', zIndex: 1000 }}
+        style={{ scaleX, position: 'fixed', top: 0, left: 0, right: 0, height: '3px', background: 'linear-gradient(90deg, #667eea, #f093fb, #00d4ff)', transformOrigin: '0%', zIndex: 1000 }}
       />
 
-      {/* ── 1. Navigation Navbar ── */}
+      {/* ── 1. Navbar ── */}
       <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
         <div className="container nav-container">
           <div className="nav-logo" onClick={scrollToTop}>
@@ -72,15 +87,20 @@ const IntroPage = () => {
           <div className="nav-links">
             <a href="#home">Home</a>
             <a href="#features">Features</a>
+            <a href="#showcase">Showcase</a>
             <a href="#how-it-works">How it works</a>
             <a href="#pricing">Pricing</a>
-            <a href="/blog">Blog</a>
           </div>
 
           <div className="nav-actions">
+            {/* Theme Toggle */}
+            <div className="theme-toggle-wrapper">
+              <span className="theme-toggle-icon">{isDark ? '🌙' : '☀️'}</span>
+              <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme" />
+            </div>
             <a href="/login" className="nav-signin" onClick={(e) => { e.preventDefault(); navigate('/login'); }}>Sign In</a>
-            <button className="btn btn-primary" onClick={() => navigate('/login')}>
-              Get Started Free
+            <button className="btn btn-primary-glow" onClick={() => navigate('/login')}>
+              Get Started
             </button>
           </div>
         </div>
@@ -99,34 +119,35 @@ const IntroPage = () => {
             variants={staggerContainer}
           >
             <motion.h1 variants={fadeUp} className="hero-title">
-              <span className="text-gradient">Ace Every Interview</span><br />
+              <span className="text-gradient">Ace Every Interview</span>
               with AI
             </motion.h1>
             
             <motion.p variants={fadeUp} className="hero-subtitle">
-              Master interview skills, track your progress, and land your dream job with intelligent practice and real-time feedback.
+              Master interview skills, track your progress, and land your dream job with intelligent practice and real-time AI feedback.
             </motion.p>
             
             <motion.div variants={fadeUp} className="hero-ctas">
-              <button className="btn btn-primary minimalist-btn" onClick={() => navigate('/login')}>
-                Start Practicing Free <ArrowRight size={18} />
+              <button className="btn btn-primary-glow" onClick={() => navigate('/login')}>
+                <Rocket size={20} /> Get Started Free
               </button>
-              <button className="btn btn-outline minimalist-btn">
+              <button className="btn btn-minimal">
                 <Play size={18} /> Watch Demo
               </button>
             </motion.div>
 
             <motion.div variants={fadeUp} className="hero-proof">
-              <div className="hero-proof-item"><CheckCircle2 size={16} className="text-primary" style={{color: 'var(--primary)'}} /> No credit card required</div>
-              <div className="hero-proof-item"><CheckCircle2 size={16} className="text-primary" style={{color: 'var(--primary)'}} /> 7-day free trial</div>
+              <div className="hero-proof-item"><CheckCircle2 size={16} style={{color: '#667eea'}} /> No credit card required</div>
+              <div className="hero-proof-item"><CheckCircle2 size={16} style={{color: '#667eea'}} /> 7-day free trial</div>
+              <div className="hero-proof-item"><CheckCircle2 size={16} style={{color: '#667eea'}} /> Cancel anytime</div>
             </motion.div>
           </motion.div>
 
           <motion.div 
             className="hero-dashboard-wrapper"
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            initial={{ opacity: 0, y: 120, rotateX: 15 }}
+            animate={{ opacity: 1, y: 0, rotateX: 0 }}
+            transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className="mockup hero-dashboard">
               <div className="mockup-header">
@@ -136,10 +157,10 @@ const IntroPage = () => {
               </div>
               <div className="dashboard-grid">
                 <div className="dashboard-sidebar">
-                  <div style={{height: '24px', width: '70%', background: 'var(--border)', borderRadius: '4px', marginBottom: '24px'}}></div>
-                  <div style={{height: '16px', width: '90%', background: 'var(--bg-card)', borderRadius: '4px', marginBottom: '16px'}}></div>
-                  <div style={{height: '16px', width: '60%', background: 'var(--bg-card)', borderRadius: '4px', marginBottom: '16px'}}></div>
-                  <div style={{height: '16px', width: '80%', background: 'var(--bg-card)', borderRadius: '4px', marginBottom: '16px'}}></div>
+                  <div style={{height: '24px', width: '70%', background: skelColor1, borderRadius: '4px', marginBottom: '24px'}}></div>
+                  <div style={{height: '16px', width: '90%', background: skelColor2, borderRadius: '4px', marginBottom: '16px'}}></div>
+                  <div style={{height: '16px', width: '60%', background: skelColor2, borderRadius: '4px', marginBottom: '16px'}}></div>
+                  <div style={{height: '16px', width: '80%', background: skelColor2, borderRadius: '4px', marginBottom: '16px'}}></div>
                 </div>
                 <div className="dashboard-main practice-mockup">
                   <div className="mockup-badge">Behavioral Question</div>
@@ -149,7 +170,7 @@ const IntroPage = () => {
                     Recording... 2:30 remaining
                   </div>
                   <div className="mockup-input-area">
-                    <p style={{color: 'var(--text-gray)'}}>Well, in my previous role...</p>
+                    <p style={{color: mutedText}}>Well, in my previous role...</p>
                     <div className="mockup-hint">
                       <Zap size={14} /> Use the STAR method to structure your answer.
                     </div>
@@ -161,16 +182,10 @@ const IntroPage = () => {
         </div>
       </section>
 
-      {/* ── 3. Stats Section ── */}
+      {/* ── 3. Stats ── */}
       <section className="stats-section">
         <div className="container">
-          <motion.div 
-            className="stats-grid"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-          >
+          <motion.div className="stats-grid" initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}>
             {[
               { icon: <Users size={24} />, num: "Growing", label: "Community" },
               { icon: <Target size={24} />, num: "Active", label: "Practice Sessions" },
@@ -187,42 +202,28 @@ const IntroPage = () => {
         </div>
       </section>
 
-      {/* ── 4. Features Section ── */}
+      {/* ── 4. Core Features Grid ── */}
       <section id="features" className="section-padding features-section">
-        <div className="container split-layout">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={fadeUp}
-            className="section-heading-wrapper"
-          >
+        <div className="container">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp} className="section-heading-wrapper text-center">
             <div className="section-label">🚀 POWERFUL FEATURES</div>
-            <h2 className="section-title">Everything you need to succeed</h2>
-            <p className="section-subtitle" style={{marginBottom: '32px'}}>
-              From AI-powered mock interviews to comprehensive progress tracking, Elevate provides a complete toolkit for your interview success.
-            </p>
-            <button className="btn btn-primary minimalist-btn" onClick={() => navigate('/login')}>
-              Explore All Features <ArrowRight size={18} />
-            </button>
+            <h2 className="section-title">Everything you need to <span className="text-gradient">succeed</span></h2>
+            <p className="section-subtitle">From AI-powered mock interviews to comprehensive progress tracking, Elevate provides a complete toolkit for interview success.</p>
           </motion.div>
 
-          <motion.div 
-            className="features-grid"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-          >
+          <motion.div className="features-grid" initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}>
             {[
-              { icon: <MessageSquare />, title: "AI Mock Interviews", desc: "Practice with our advanced AI tailored to your specific role." },
-              { icon: <Zap />, title: "Real-time Feedback", desc: "Get instant, contextual guidance without breaking your flow." },
-              { icon: <BarChart3 />, title: "Progress Dashboard", desc: "Track improvements with detailed analytics over time." },
-              { icon: <Calendar />, title: "GitHub-style Calendar", desc: "Build consistency with daily streak tracking." },
-              { icon: <FileText />, title: "STAR Method Trainer", desc: "Master behavioral questions using proven frameworks." },
-              { icon: <Mic />, title: "Voice Analysis", desc: "Improve your delivery, pacing, and tone with audio insights." }
+              { icon: <MessageSquare size={24} />, title: "AI Mock Interviews", desc: "Practice with our advanced AI that adapts to your specific role, experience level, and target company." },
+              { icon: <Zap size={24} />, title: "Real-time Feedback", desc: "Get instant, contextual guidance and coaching tips without interrupting your interview flow." },
+              { icon: <BarChart3 size={24} />, title: "Progress Dashboard", desc: "Track improvements with detailed analytics, streak tracking, and performance metrics over time." },
+              { icon: <BookOpen size={24} />, title: "Practice English", desc: "Master corporate English with AI-powered speaking exercises, vocabulary builders, and grammar quizzes." },
+              { icon: <Globe size={24} />, title: "Community Hub", desc: "Connect with other candidates, share tips, participate in mock interview sessions, and grow together." },
+              { icon: <Code2 size={24} />, title: "CS Fundamentals", desc: "Drill data structures, algorithms, system design, databases, and networking with MCQ quizzes." },
+              { icon: <FileText size={24} />, title: "Portfolio Builder", desc: "Automatically generate a stunning developer portfolio showcasing your verified skills and streak." },
+              { icon: <Mic size={24} />, title: "Voice Analysis", desc: "Improve delivery, pacing, and tone with advanced AI-powered audio analysis and filler-word detection." },
+              { icon: <Calendar size={24} />, title: "GitHub-style Calendar", desc: "Build consistency with daily streak tracking and earn XP rewards for maintaining your practice habits." }
             ].map((feature, i) => (
-              <motion.div key={i} variants={fadeUp} className="feature-card">
+              <motion.div key={i} variants={scaleUp} className="feature-card">
                 <div className="feature-card-icon">{feature.icon}</div>
                 <h3 className="feature-card-title">{feature.title}</h3>
                 <p className="feature-card-desc">{feature.desc}</p>
@@ -232,17 +233,72 @@ const IntroPage = () => {
         </div>
       </section>
 
-      {/* ── 5. Setup / Smart Practice Section ── */}
+      {/* ── 5. Feature Showcase — Detailed Cards ── */}
+      <section id="showcase" className="showcase-section">
+        <div className="container">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp} className="section-heading-wrapper text-center">
+            <div className="section-label">✨ DEEP DIVE</div>
+            <h2 className="section-title">Built for <span className="text-gradient">serious preparation</span></h2>
+            <p className="section-subtitle">Every feature is designed to simulate real interview conditions and accelerate your learning curve.</p>
+          </motion.div>
+
+          <motion.div className="showcase-grid" initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}>
+            <motion.div variants={fadeUp} className="showcase-card">
+              <div className="showcase-card-icon"><Brain size={32} /></div>
+              <h3 className="showcase-card-title">AI Interview Engine</h3>
+              <p className="showcase-card-desc">Powered by advanced language models, our AI adapts to your answers, asks follow-up questions, and provides hints when you get stuck.</p>
+              <ul className="showcase-card-features">
+                <li><Check size={16} color="#22c55e" /> Behavioral & technical questions</li>
+                <li><Check size={16} color="#22c55e" /> Real-time STAR method coaching</li>
+                <li><Check size={16} color="#22c55e" /> System design mock sessions</li>
+                <li><Check size={16} color="#22c55e" /> Adaptive difficulty scaling</li>
+              </ul>
+            </motion.div>
+
+            <motion.div variants={fadeUp} className="showcase-card">
+              <div className="showcase-card-icon"><Headphones size={32} /></div>
+              <h3 className="showcase-card-title">Corporate English Training</h3>
+              <p className="showcase-card-desc">Complete language training suite with interactive lessons, vocabulary flashcards, reading comprehension, and real-time chat practice.</p>
+              <ul className="showcase-card-features">
+                <li><Check size={16} color="#f093fb" /> 8-step interactive AI lessons</li>
+                <li><Check size={16} color="#f093fb" /> Salary negotiation chat simulator</li>
+                <li><Check size={16} color="#f093fb" /> Grammar quizzes with timer</li>
+                <li><Check size={16} color="#f093fb" /> Voice evaluation & TTS feedback</li>
+              </ul>
+            </motion.div>
+
+            <motion.div variants={fadeUp} className="showcase-card">
+              <div className="showcase-card-icon"><BarChart3 size={32} /></div>
+              <h3 className="showcase-card-title">Analytics & Growth</h3>
+              <p className="showcase-card-desc">Comprehensive analytics dashboard tracks your fluency scores, vocabulary usage, speaking pace, and problem-solving accuracy.</p>
+              <ul className="showcase-card-features">
+                <li><Check size={16} color="#22c55e" /> Score tracking with trend charts</li>
+                <li><Check size={16} color="#22c55e" /> XP & gamification system</li>
+                <li><Check size={16} color="#22c55e" /> GitHub-style activity calendar</li>
+                <li><Check size={16} color="#22c55e" /> Exportable progress reports</li>
+              </ul>
+            </motion.div>
+
+            <motion.div variants={fadeUp} className="showcase-card">
+              <div className="showcase-card-icon"><Layers size={32} /></div>
+              <h3 className="showcase-card-title">Community & Portfolio</h3>
+              <p className="showcase-card-desc">Join a growing community of motivated learners. Share progress, get peer feedback, and showcase your abilities professionally.</p>
+              <ul className="showcase-card-features">
+                <li><Check size={16} color="#f59e0b" /> Community discussion forum</li>
+                <li><Check size={16} color="#f59e0b" /> Auto-generated developer portfolio</li>
+                <li><Check size={16} color="#f59e0b" /> Blog publishing platform</li>
+                <li><Check size={16} color="#f59e0b" /> Resource & tool recommendations</li>
+              </ul>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── 6. Smart Practice ── */}
       <section id="how-it-works" className="section-padding">
         <div className="container split-layout reversed">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={slideInLeft}
-            className="mockup-container"
-          >
-            <div className="mockup practice-mockup" style={{boxShadow: 'var(--shadow-lg)'}}>
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={slideInLeft} className="mockup-container">
+            <div className="mockup practice-mockup" style={{boxShadow: 'var(--shadow-3d)'}}>
               <div className="mockup-badge">System Design</div>
               <div className="mockup-question">"Design a scalable rate limiter."</div>
               <div className="mockup-timer">
@@ -250,7 +306,7 @@ const IntroPage = () => {
                 Recording... 14:20 remaining
               </div>
               <div className="mockup-input-area" style={{minHeight: '200px'}}>
-                <p style={{color: 'var(--text-dark)', fontFamily: 'monospace', fontSize: '0.9rem'}}>
+                <p style={{color: bodyText, fontFamily: 'monospace', fontSize: '0.9rem'}}>
                   1. Token Bucket algorithm<br/>
                   2. Redis for distributed counter<br/>
                   3. Edge API gateway
@@ -262,97 +318,61 @@ const IntroPage = () => {
             </div>
           </motion.div>
 
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={slideInRight}
-            className="section-heading-wrapper text-right"
-          >
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={slideInRight} className="section-heading-wrapper text-right">
             <div className="section-label">🎯 SMART PRACTICE</div>
-            <h2 className="section-title">Practice like you're in the real interview</h2>
+            <h2 className="section-title">Practice like the <span className="text-gradient">real interview</span></h2>
             <p className="section-subtitle" style={{marginBottom: '32px'}}>
               Experience the pressure of real interviews in a safe environment. Our intelligent system adapts to your answers, asks follow-up questions, and provides hints precisely when you get stuck.
             </p>
-            <button className="btn btn-primary minimalist-btn" onClick={() => navigate('/login')}>
+            <button className="section-cta-btn" onClick={() => navigate('/login')}>
               Try Mock Interview <ArrowRight size={18} />
             </button>
           </motion.div>
         </div>
       </section>
 
-      {/* ── 6. Progress Tracking Section ── */}
+      {/* ── 7. Progress Tracking ── */}
       <section className="section-padding" style={{background: 'var(--bg-subtle)'}}>
         <div className="container split-layout">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={slideInLeft}
-            className="section-heading-wrapper"
-          >
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={slideInLeft} className="section-heading-wrapper">
             <div className="section-label">📊 TRACK YOUR GROWTH</div>
-            <h2 className="section-title">See your improvement in real-time</h2>
+            <h2 className="section-title">See your <span className="text-gradient">improvement</span> in real-time</h2>
             <p className="section-subtitle" style={{marginBottom: '32px'}}>
-              Visualize your journey from novice to master. Elevate provides deep analytics on your problem-solving speed, accuracy, and communication clarity over time.
+              Visualize your journey from novice to master. Deep analytics on problem-solving speed, accuracy, and communication clarity.
             </p>
-            <button className="btn btn-primary minimalist-btn" onClick={() => navigate('/login')}>
+            <button className="section-cta-btn" onClick={() => navigate('/login')}>
               View Dashboard Demo <ArrowRight size={18} />
             </button>
           </motion.div>
 
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={slideInRight}
-            className="mockup-container"
-          >
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={slideInRight} className="mockup-container">
             <div className="mockup dashboard-mockup">
               <div className="dash-header">
-                <h3 style={{fontFamily: 'var(--font-heading)', fontSize: '1.25rem'}}>Your Dashboard</h3>
+                <h3>Your Dashboard</h3>
                 <div className="dash-streak">7 Day Streak 🔥</div>
               </div>
               <div className="dash-charts"></div>
               <div className="dash-stats-grid">
-                <div className="dash-stat-card">
-                  <div className="dash-stat-val">127h</div>
-                  <div className="dash-stat-name">Study Time</div>
-                </div>
-                <div className="dash-stat-card">
-                  <div className="dash-stat-val">248</div>
-                  <div className="dash-stat-name">Problems Solved</div>
-                </div>
-                <div className="dash-stat-card">
-                  <div className="dash-stat-val">32</div>
-                  <div className="dash-stat-name">Modules</div>
-                </div>
-                <div className="dash-stat-card">
-                  <div className="dash-stat-val">87%</div>
-                  <div className="dash-stat-name">Avg Score</div>
-                </div>
+                <div className="dash-stat-card"><div className="dash-stat-val">127h</div><div className="dash-stat-name">Study Time</div></div>
+                <div className="dash-stat-card"><div className="dash-stat-val">248</div><div className="dash-stat-name">Problems Solved</div></div>
+                <div className="dash-stat-card"><div className="dash-stat-val">32</div><div className="dash-stat-name">Modules</div></div>
+                <div className="dash-stat-card"><div className="dash-stat-val">87%</div><div className="dash-stat-name">Avg Score</div></div>
               </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* ── 7. Portfolio Builder Section ── */}
+      {/* ── 8. Portfolio Builder ── */}
       <section className="section-padding">
         <div className="container split-layout reversed">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={slideInLeft}
-            className="mockup-container"
-          >
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={slideInLeft} className="mockup-container">
             <div className="mockup portfolio-mockup">
               <div className="mockup-header">
                 <div className="mockup-dot red"></div>
                 <div className="mockup-dot yellow"></div>
                 <div className="mockup-dot green"></div>
-                <div style={{fontSize: '0.75rem', color: 'var(--text-gray)', marginLeft: '12px'}}>johndoe.elevate.com</div>
+                <div style={{fontSize: '0.75rem', color: mutedText, marginLeft: '12px'}}>johndoe.elevate.com</div>
               </div>
               <div className="port-cover"></div>
               <div className="port-profile">
@@ -366,89 +386,59 @@ const IntroPage = () => {
                   <span className="port-skill">System Design</span>
                 </div>
                 <div style={{marginTop: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px'}}>
-                  <div style={{height: '80px', background: 'var(--bg-card)', borderRadius: '8px', border: '1px solid var(--border)'}}></div>
-                  <div style={{height: '80px', background: 'var(--bg-card)', borderRadius: '8px', border: '1px solid var(--border)'}}></div>
+                  <div style={{height: '80px', background: 'var(--bg-subtle)', borderRadius: '8px', border: '1px solid var(--border-card)'}}></div>
+                  <div style={{height: '80px', background: 'var(--bg-subtle)', borderRadius: '8px', border: '1px solid var(--border-card)'}}></div>
                 </div>
               </div>
             </div>
           </motion.div>
 
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={slideInRight}
-            className="section-heading-wrapper text-right"
-          >
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={slideInRight} className="section-heading-wrapper text-right">
             <div className="section-label">💼 BUILD YOUR PORTFOLIO</div>
-            <h2 className="section-title">Showcase your skills professionally</h2>
+            <h2 className="section-title">Showcase your skills <span className="text-gradient">professionally</span></h2>
             <p className="section-subtitle" style={{marginBottom: '32px'}}>
-              Turn your practice into proof. Automatically generate a stunning developer portfolio that highlights your verified skills, streak, and mock interview performance.
+              Turn your practice into proof. Automatically generate a stunning portfolio that highlights your verified skills, streak, and performance.
             </p>
-            <button className="btn btn-primary minimalist-btn" onClick={() => navigate('/login')}>
+            <button className="section-cta-btn" onClick={() => navigate('/login')}>
               Create Portfolio <ArrowRight size={18} />
             </button>
           </motion.div>
         </div>
       </section>
 
-      {/* ── 8. AI Insights Section ── */}
+      {/* ── 9. AI Insights ── */}
       <section className="section-padding" style={{background: 'var(--bg-subtle)'}}>
         <div className="container split-layout">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={slideInLeft}
-            className="section-heading-wrapper"
-          >
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={slideInLeft} className="section-heading-wrapper">
             <div className="section-label">🤖 AI-POWERED INSIGHTS</div>
-            <h2 className="section-title">Get personalized feedback instantly</h2>
+            <h2 className="section-title">Get personalized <span className="text-gradient">feedback</span> instantly</h2>
             <p className="section-subtitle" style={{marginBottom: '32px'}}>
-              Our AI doesn't just tell you if you're right or wrong. It analyzes your communication style, problem-solving approach, and technical accuracy to provide actionable recommendations.
+              Our AI analyzes your communication style, problem-solving approach, and technical accuracy to provide actionable recommendations.
             </p>
-            <button className="btn btn-primary minimalist-btn" onClick={() => navigate('/login')}>
+            <button className="section-cta-btn" onClick={() => navigate('/login')}>
               See Feedback Example <ArrowRight size={18} />
             </button>
           </motion.div>
 
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={slideInRight}
-            className="mockup-container"
-          >
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={slideInRight} className="mockup-container">
             <div className="mockup ai-mockup">
-              <h3 className="section-title" style={{fontSize: '1.5rem', textAlign: 'center'}}>Interview Analysis</h3>
+              <h3 className="section-title" style={{fontSize: '1.5rem', textAlign: 'center', marginBottom: '24px'}}>Interview Analysis</h3>
               <div className="ai-score-ring">
-                <span>87<span style={{fontSize: '1rem', color: 'var(--text-gray)'}}>/100</span></span>
+                <span>87<span>/100</span></span>
               </div>
-              
               <div className="ai-feedback-section">
                 <div className="ai-feedback-title">Strengths</div>
                 <div className="ai-feedback-list">
-                  <div className="ai-feedback-item success">
-                    <Check size={18} color="#22c55e" /> Clear communication
-                  </div>
-                  <div className="ai-feedback-item success">
-                    <Check size={18} color="#22c55e" /> Good STAR structure
-                  </div>
-                  <div className="ai-feedback-item success">
-                    <Check size={18} color="#22c55e" /> Confident delivery
-                  </div>
+                  <div className="ai-feedback-item success"><Check size={18} color="#22c55e" /> Clear communication</div>
+                  <div className="ai-feedback-item success"><Check size={18} color="#22c55e" /> Good STAR structure</div>
+                  <div className="ai-feedback-item success"><Check size={18} color="#22c55e" /> Confident delivery</div>
                 </div>
               </div>
-
               <div className="ai-feedback-section">
                 <div className="ai-feedback-title">Areas to Improve</div>
                 <div className="ai-feedback-list">
-                  <div className="ai-feedback-item warning">
-                    <AlertTriangle size={18} color="#eab308" /> Add more quantifiable metrics
-                  </div>
-                  <div className="ai-feedback-item warning">
-                    <AlertTriangle size={18} color="#eab308" /> Speak slightly slower
-                  </div>
+                  <div className="ai-feedback-item warning"><AlertTriangle size={18} color="#eab308" /> Add more quantifiable metrics</div>
+                  <div className="ai-feedback-item warning"><AlertTriangle size={18} color="#eab308" /> Speak slightly slower</div>
                 </div>
               </div>
             </div>
@@ -456,72 +446,15 @@ const IntroPage = () => {
         </div>
       </section>
 
-      {/* ── 9. Testimonials ── */}
-      <section className="section-padding testimonials-section">
-        <div className="container">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={fadeUp}
-            className="section-heading-wrapper text-center"
-          >
-            <h2 className="section-title">Loved by job seekers everywhere</h2>
-            <p className="section-subtitle">Join those who landed their dream jobs at top tech companies.</p>
-          </motion.div>
-
-          <motion.div 
-            className="testimonials-grid"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-          >
-            {[
-              { name: "Sarah J.", company: "Google", letter: "S", quote: "Elevate completely transformed my interview prep. The real-time hints helped me understand how to approach problems without just giving me the answer." },
-              { name: "Michael T.", company: "Meta", letter: "M", quote: "The mock interviews felt incredibly realistic. Getting immediate feedback on my communication style was a game changer for my behavioral rounds." },
-              { name: "Priya R.", company: "Amazon", letter: "P", quote: "I loved the streak tracking and daily goals. It kept me accountable for 3 months straight, resulting in 4 offers!" }
-            ].map((test, i) => (
-              <motion.div key={i} variants={fadeUp} className="testimonial-card">
-                <div className="test-stars">
-                  {[...Array(5)].map((_, j) => <svg key={j} width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>)}
-                </div>
-                <div className="test-quote">"{test.quote}"</div>
-                <div className="test-author">
-                  <div className="test-avatar">{test.letter}</div>
-                  <div>
-                    <div className="test-name">{test.name}</div>
-                    <div className="test-company">Landed at {test.company}</div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ── 10. Pricing Section ── */}
+      {/* ── 10. Pricing ── */}
       <section id="pricing" className="section-padding pricing-section">
         <div className="container">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={fadeUp}
-            className="section-heading-wrapper text-center"
-          >
-            <h2 className="section-title">Start preparing today</h2>
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp} className="section-heading-wrapper text-center">
+            <h2 className="section-title">Start preparing <span className="text-gradient">today</span></h2>
             <p className="section-subtitle">Choose the plan that works for you.</p>
           </motion.div>
 
-          <motion.div 
-            className="pricing-grid"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-          >
-            {/* Free Tier */}
+          <motion.div className="pricing-grid" initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}>
             <motion.div variants={fadeUp} className="pricing-card">
               <h3 className="pricing-name">Free Plan</h3>
               <div className="pricing-price">$0<span className="pricing-period">/month</span></div>
@@ -534,7 +467,6 @@ const IntroPage = () => {
               <button className="btn btn-outline" onClick={() => navigate('/login')}>Start Free</button>
             </motion.div>
 
-            {/* Pro Tier */}
             <motion.div variants={fadeUp} className="pricing-card popular">
               <div className="popular-badge">Most Popular</div>
               <h3 className="pricing-name">Pro Plan</h3>
@@ -547,25 +479,20 @@ const IntroPage = () => {
                 <li className="pricing-feature"><CheckCircle2 size={18} /> Portfolio builder</li>
                 <li className="pricing-feature"><CheckCircle2 size={18} /> Priority support</li>
               </ul>
-              <button className="btn btn-white" onClick={() => navigate('/login')} style={{color: 'var(--secondary)'}}>Get Started <ArrowRight size={18} /></button>
+              <button className="btn btn-white" onClick={() => navigate('/login')}>Get Started <ArrowRight size={18} /></button>
             </motion.div>
           </motion.div>
         </div>
       </section>
 
-      {/* ── 11. Final CTA Section ── */}
+      {/* ── 11. Final CTA ── */}
       <section className="cta-section">
         <div className="particles"></div>
         <div className="container" style={{position: 'relative', zIndex: 2}}>
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={fadeUp}
-          >
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}>
             <h2 className="cta-title">Ready to ace your next interview?</h2>
-            <p className="cta-subtitle">Join successful candidates today.</p>
-            <button className="btn btn-white minimalist-btn" onClick={() => navigate('/login')} style={{padding: '16px 40px', fontSize: '1.1rem', color: 'var(--primary)'}}>
+            <p className="cta-subtitle">Join successful candidates who transformed their careers with Elevate.</p>
+            <button className="btn btn-white" onClick={() => navigate('/login')} style={{padding: '16px 44px', fontSize: '1.1rem', fontWeight: 700}}>
               Get Started Free <ArrowRight size={20} />
             </button>
             <p className="cta-note">No credit card required</p>
@@ -578,9 +505,7 @@ const IntroPage = () => {
         <div className="container">
           <div className="footer-grid">
             <div>
-              <div className="footer-logo">
-                <Brain className="footer-logo-icon" /> Elevate
-              </div>
+              <div className="footer-logo"><Brain className="footer-logo-icon" /> Elevate</div>
               <p className="footer-desc">Interview prep, perfected by AI. Master every interview with real-time feedback and intelligent guidance.</p>
               <div className="social-links">
                 <a href="#" className="social-link"><Twitter size={20} /></a>
@@ -588,17 +513,15 @@ const IntroPage = () => {
                 <a href="#" className="social-link"><Github size={20} /></a>
               </div>
             </div>
-            
             <div>
               <h4 className="footer-title">Product</h4>
               <ul className="footer-links">
-                <li><a href="#features" onClick={(e) => { e.preventDefault(); navigate('/#features'); }}>Features</a></li>
-                <li><a href="#pricing" onClick={(e) => { e.preventDefault(); navigate('/#pricing'); }}>Pricing</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#pricing">Pricing</a></li>
                 <li><a href="/blog">Blog</a></li>
                 <li><a href="/login">Sign In</a></li>
               </ul>
             </div>
-            
             <div>
               <h4 className="footer-title">Resources</h4>
               <ul className="footer-links">
@@ -608,7 +531,6 @@ const IntroPage = () => {
                 <li><a href="#">System Design Guide</a></li>
               </ul>
             </div>
-            
             <div>
               <h4 className="footer-title">Company</h4>
               <ul className="footer-links">
@@ -619,7 +541,6 @@ const IntroPage = () => {
               </ul>
             </div>
           </div>
-          
           <div className="footer-bottom">
             <p>Copyright © {new Date().getFullYear()} Elevate (RIPIS).</p>
             <div className="footer-bottom-links">
@@ -630,15 +551,11 @@ const IntroPage = () => {
         </div>
       </footer>
 
-      {/* Back to Top Button */}
+      {/* Back to Top */}
       {showBackToTop && (
-        <motion.button 
-          className="back-to-top"
-          onClick={scrollToTop}
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0 }}
-          whileHover={{ y: -5 }}
+        <motion.button className="back-to-top" onClick={scrollToTop}
+          initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0 }} whileHover={{ y: -5 }}
         >
           <ChevronUp size={24} />
         </motion.button>

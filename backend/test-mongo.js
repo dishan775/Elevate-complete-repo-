@@ -1,3 +1,8 @@
+const { setServers } = require('node:dns/promises');
+try {
+  setServers(['8.8.8.8', '8.8.4.4']);
+} catch (e) {}
+
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 dotenv.config();

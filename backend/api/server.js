@@ -1,9 +1,17 @@
+const { setServers } = require('node:dns/promises');
+try {
+  setServers(['8.8.8.8', '8.8.4.4']);
+} catch (e) {
+  console.warn('DNS server override failed, continuing with defaults:', e.message);
+}
+
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const routes = require('./routes');
+const practiceRoutes = require('./practiceRoutes');
 const connectDB = require('../config/db');
 
 dotenv.config();
@@ -27,6 +35,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api', routes);
+app.use('/', practiceRoutes);
 
 // Health Check
 app.get('/health', (req, res) => {

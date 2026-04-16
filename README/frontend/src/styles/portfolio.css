@@ -86,7 +86,7 @@
   letter-spacing: -0.02em;
 }
 
-.hero-title {
+.portfolio-page .hero-title {
   font-size: 1rem;
   color: var(--color-text-secondary);
   margin-bottom: 0.25rem;
@@ -330,19 +330,19 @@
   margin-top: 1rem;
 }
 
-.stat-item {
+.portfolio-page .stat-item {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.stat-number {
+.portfolio-page .stat-number {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-accent);
 }
 
-.stat-label {
+.portfolio-page .stat-label {
   font-size: 0.75rem;
   color: var(--color-text-tertiary);
   margin-top: 0.15rem;

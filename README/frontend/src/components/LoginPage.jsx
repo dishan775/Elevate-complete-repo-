@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Lock, Facebook, Twitter, CheckCircle2, BarChart2, MessageSquare, TrendingUp } from 'lucide-react';
+import { User, Lock, Facebook, Twitter, CheckCircle2, BarChart2, MessageSquare, TrendingUp, AlertCircle } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 import '../styles/login.css';
 
@@ -23,37 +23,61 @@ const AppleIcon = () => (
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login } = useAuthStore();
+  const { login, register, error, clearError, isLoading: storeLoading } = useAuthStore();
   const [isSignUpMode, setIsSignUpMode] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '', name: '' });
   const [rememberMe, setRememberMe] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = useState('');
+
+  // Clear errors when switching modes
+  useEffect(() => {
+    clearError();
+    setFormError('');
+  }, [isSignUpMode, clearError]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    setFormError('');
 
-    setTimeout(() => {
-      const displayName = formData.name || formData.email.split('@')[0];
-      login(formData.email, displayName);
-      showMessage("Welcome to Elevate!");
-      setTimeout(() => navigate('/home'), 500);
-      setIsLoading(false);
-    }, 800);
+    // Basic validation
+    if (!formData.email || !formData.password) {
+      setFormError('Please fill in all required fields.');
+      return;
+    }
+
+    if (isSignUpMode && !formData.name) {
+      setFormError('Please enter your full name.');
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setFormError('Password must be at least 6 characters.');
+      return;
+    }
+
+    let result;
+    if (isSignUpMode) {
+      result = await register(formData.name, formData.email, formData.password);
+    } else {
+      result = await login(formData.email, formData.password);
+    }
+
+    if (result.success) {
+      showMessage(isSignUpMode ? 'Account created! Welcome to Elevate!' : 'Welcome back to Elevate!');
+      setTimeout(() => navigate('/home'), 600);
+    } else {
+      setFormError(result.message);
+    }
   };
 
   const handleGoogleLogin = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      login('google_user@gmail.com', 'Google User');
-      showMessage("Logged in with Google!");
-      setTimeout(() => navigate('/home'), 500);
-      setIsLoading(false);
-    }, 1000);
+    showMessage('Google login is not configured yet.');
   };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear errors on typing
+    if (formError) setFormError('');
   };
 
   const toggleAuthMode = () => {
@@ -69,6 +93,8 @@ const LoginPage = () => {
       setTimeout(() => msg.classList.remove('visible'), 3000);
     }
   };
+
+  const displayError = formError || error;
 
   return (
     <div className="login-page-wrapper">
@@ -134,6 +160,21 @@ const LoginPage = () => {
               </h2>
             </div>
 
+            {/* Error Message Display */}
+            <AnimatePresence>
+              {displayError && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                  animate={{ opacity: 1, height: 'auto', marginBottom: 16 }}
+                  exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                  className="auth-error-banner"
+                >
+                  <AlertCircle size={16} />
+                  <span>{displayError}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <form onSubmit={handleSubmit} className="login-form">
               <AnimatePresence>
                 {isSignUpMode && (
@@ -180,7 +221,7 @@ const LoginPage = () => {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    placeholder="Password"
+                    placeholder="Password (min 6 characters)"
                     required
                   />
                 </div>
@@ -203,12 +244,19 @@ const LoginPage = () => {
 
               <motion.button
                 type="submit"
-                disabled={isLoading}
+                disabled={storeLoading}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="btn-auth-primary"
               >
-                {isLoading ? 'Processing...' : (isSignUpMode ? 'Register' : 'Login')}
+                {storeLoading ? (
+                  <span className="btn-loading-content">
+                    <span className="btn-spinner"></span>
+                    Processing...
+                  </span>
+                ) : (
+                  isSignUpMode ? 'Register' : 'Login'
+                )}
               </motion.button>
             </form>
 

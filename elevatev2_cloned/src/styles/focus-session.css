@@ -1,0 +1,1274 @@
+/* ═══════════════════════════════════════════════
+   FOCUS SESSION — IMMERSIVE NATURE SANCTUARY
+   Full-screen meadow background with Ken Burns
+   animated effect, floating petals overlay
+   ═══════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap');
+
+/* ─── Page Container ─── */
+.focus-session-page {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  font-family: 'Outfit', -apple-system, sans-serif;
+  color: #1a1a2e;
+  z-index: 9999;
+}
+
+.focus-session-page.nighttime {
+  color: #E0E7FF;
+}
+
+/* ═══════════════════════════════════════
+   BACKGROUND IMAGE — KEN BURNS EFFECT
+   The meadow image slowly pans and zooms
+   to create a living, breathing scene
+   ═══════════════════════════════════════ */
+
+.fs-bg-image {
+  position: fixed;
+  inset: -40px;              /* extra space for zoom/pan */
+  z-index: 0;
+  background-image: url('/images/focus-meadow-bg.png');
+  background-size: cover;
+  background-position: center 40%;
+  background-repeat: no-repeat;
+  animation: kenBurns 60s ease-in-out infinite alternate;
+  will-change: transform;
+  filter: saturate(1.15) brightness(1.05);
+}
+
+@keyframes kenBurns {
+  0% {
+    transform: scale(1.0) translate(0, 0);
+  }
+  25% {
+    transform: scale(1.08) translate(-1%, 1%);
+  }
+  50% {
+    transform: scale(1.05) translate(1%, -0.5%);
+  }
+  75% {
+    transform: scale(1.1) translate(-0.5%, 0.5%);
+  }
+  100% {
+    transform: scale(1.06) translate(0.5%, -1%);
+  }
+}
+
+/* Dreamy overlay — soft color wash */
+.fs-bg-dreamy {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.focus-session-page.daytime .fs-bg-dreamy {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(135, 206, 250, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(255, 182, 193, 0.12) 0%, transparent 50%),
+    linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 30%, rgba(0,100,0,0.05) 100%);
+}
+
+.focus-session-page.nighttime .fs-bg-dreamy {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(30, 30, 80, 0.5) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(40, 20, 60, 0.4) 0%, transparent 50%),
+    linear-gradient(180deg, rgba(10,10,30,0.55) 0%, rgba(10,10,30,0.35) 50%, rgba(10,20,10,0.5) 100%);
+}
+
+/* Vignette for depth */
+.fs-bg-vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.focus-session-page.daytime .fs-bg-vignette {
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.12) 100%);
+}
+
+.focus-session-page.nighttime .fs-bg-vignette {
+  background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.45) 100%);
+}
+
+/* ═══ LIGHT RAYS — Drifting sunbeams ═══ */
+.fs-light-rays {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.fs-light-ray {
+  position: absolute;
+  top: -20%;
+  width: 180px;
+  height: 130%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 220, 0.10) 0%,
+    rgba(255, 255, 200, 0.04) 40%,
+    transparent 80%
+  );
+  transform-origin: top center;
+  animation: rayDrift 20s ease-in-out infinite alternate;
+}
+
+.focus-session-page.nighttime .fs-light-ray {
+  background: linear-gradient(
+    180deg,
+    rgba(180, 180, 255, 0.04) 0%,
+    rgba(150, 150, 255, 0.02) 40%,
+    transparent 80%
+  );
+}
+
+.fs-light-ray:nth-child(1) {
+  left: 15%;
+  transform: rotate(-15deg);
+  animation-delay: 0s;
+  width: 140px;
+}
+.fs-light-ray:nth-child(2) {
+  left: 45%;
+  transform: rotate(5deg);
+  animation-delay: -7s;
+  width: 200px;
+  opacity: 0.7;
+}
+.fs-light-ray:nth-child(3) {
+  left: 72%;
+  transform: rotate(-8deg);
+  animation-delay: -14s;
+  width: 160px;
+  opacity: 0.5;
+}
+
+@keyframes rayDrift {
+  0% { transform: rotate(-15deg) translateX(0); opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { transform: rotate(-10deg) translateX(40px); opacity: 0.5; }
+}
+
+/* ═══ FLOATING PETALS ═══ */
+.petals-container {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.petal {
+  position: absolute;
+  will-change: transform, left, top;
+  pointer-events: none;
+  transition: none;
+}
+
+/* ═══ AMBIENT PARTICLES (fireflies / dust motes) ═══ */
+.ambient-particles {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.ambient-particle {
+  position: absolute;
+  border-radius: 50%;
+  animation: particle-float ease-in-out infinite alternate;
+}
+
+.focus-session-page.daytime .ambient-particle {
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 200, 0.2);
+}
+
+.focus-session-page.nighttime .ambient-particle {
+  background: rgba(255, 255, 180, 0.7);
+  box-shadow: 0 0 10px rgba(255, 255, 150, 0.5), 0 0 25px rgba(255, 255, 100, 0.2);
+}
+
+@keyframes particle-float {
+  0% { transform: translateY(0) scale(1); opacity: 0.2; }
+  50% { opacity: 0.9; }
+  100% { transform: translateY(-40px) scale(1.4); opacity: 0.15; }
+}
+
+/* ═══ HEADER ═══ */
+.fs-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px;
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+
+.focus-session-page.daytime .fs-header {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.focus-session-page.nighttime .fs-header {
+  background: rgba(10, 15, 30, 0.45);
+  border-bottom-color: rgba(255,255,255,0.06);
+}
+
+.fs-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.focus-session-page.daytime .fs-back-btn {
+  background: rgba(255, 255, 255, 0.45);
+  color: #374151;
+  backdrop-filter: blur(10px);
+}
+
+.focus-session-page.nighttime .fs-back-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: #D1D5DB;
+}
+
+.fs-back-btn:hover {
+  transform: translateX(-2px);
+}
+
+.fs-header-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.fs-header-icon {
+  animation: gentle-spin 8s linear infinite;
+}
+
+.focus-session-page.daytime .fs-header-icon { color: #EC4899; }
+.focus-session-page.nighttime .fs-header-icon { color: #F9A8D4; }
+
+@keyframes gentle-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.fs-header-title {
+  font-family: 'Playfair Display', serif;
+  letter-spacing: 0.02em;
+}
+
+.focus-session-page.daytime .fs-header-title { color: #1E3A5F; }
+.focus-session-page.nighttime .fs-header-title { color: #E0E7FF; }
+
+.fs-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fs-session-count {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+}
+
+.focus-session-page.daytime .fs-session-count {
+  background: rgba(124, 58, 237, 0.12);
+  color: #7C3AED;
+}
+
+.focus-session-page.nighttime .fs-session-count {
+  background: rgba(167, 139, 250, 0.18);
+  color: #A78BFA;
+}
+
+/* ═══ MAIN CONTENT ═══ */
+.fs-main {
+  position: relative;
+  z-index: 10;
+  min-height: calc(100vh - 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 28px 60px;
+}
+
+/* ═══════════════════════════════════════
+   SETUP VIEW
+   ═══════════════════════════════════════ */
+.fs-setup-layout {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+}
+
+/* Welcome */
+.fs-welcome {
+  text-align: center;
+}
+
+.fs-welcome-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 16px;
+  backdrop-filter: blur(12px);
+}
+
+.focus-session-page.daytime .fs-welcome-badge {
+  background: rgba(236, 72, 153, 0.12);
+  color: #EC4899;
+  border: 1px solid rgba(236, 72, 153, 0.25);
+}
+
+.focus-session-page.nighttime .fs-welcome-badge {
+  background: rgba(249, 168, 212, 0.12);
+  color: #F9A8D4;
+  border: 1px solid rgba(249, 168, 212, 0.15);
+}
+
+.fs-welcome h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  font-weight: 600;
+  margin: 0 0 12px;
+  line-height: 1.15;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.08);
+}
+
+.focus-session-page.daytime .fs-welcome h1 {
+  background: linear-gradient(135deg, #1E3A5F, #5B21B6, #EC4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.focus-session-page.nighttime .fs-welcome h1 {
+  background: linear-gradient(135deg, #E0E7FF, #C4B5FD, #F9A8D4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.fs-welcome p {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.focus-session-page.daytime .fs-welcome p {
+  color: #4B5563;
+  text-shadow: 0 1px 10px rgba(255,255,255,0.5);
+}
+.focus-session-page.nighttime .fs-welcome p { color: #9CA3AF; }
+
+/* ═══ MODE CARDS ═══ */
+.fs-modes-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+.fs-mode-card {
+  position: relative;
+  border-radius: 20px;
+  padding: 24px 20px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  text-align: center;
+}
+
+.focus-session-page.daytime .fs-mode-card {
+  background: rgba(255, 255, 255, 0.45);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(1.4);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.4);
+}
+
+.focus-session-page.nighttime .fs-mode-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+}
+
+.fs-mode-card.selected {
+  border-color: var(--mode-color);
+  box-shadow: 0 4px 30px color-mix(in srgb, var(--mode-color) 25%, transparent);
+}
+
+.focus-session-page.daytime .fs-mode-card.selected {
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.focus-session-page.nighttime .fs-mode-card.selected {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.fs-mode-card-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.fs-mode-card.selected .fs-mode-card-glow {
+  background: radial-gradient(circle, var(--mode-color), transparent 70%);
+  opacity: 0.08;
+}
+
+.fs-mode-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.fs-mode-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--mode-color) 15%, transparent);
+  color: var(--mode-color);
+  backdrop-filter: blur(8px);
+}
+
+.fs-mode-check {
+  color: var(--mode-color);
+}
+
+.fs-mode-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 6px;
+  text-align: left;
+}
+
+.focus-session-page.daytime .fs-mode-card h3 { color: #1F2937; }
+.focus-session-page.nighttime .fs-mode-card h3 { color: #F3F4F6; }
+
+.fs-mode-time {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 8px 0;
+  text-align: left;
+  color: var(--mode-color);
+  font-family: 'Outfit', sans-serif;
+}
+
+.fs-mode-desc {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  margin: 8px 0 0;
+  text-align: left;
+}
+
+.focus-session-page.daytime .fs-mode-desc { color: #6B7280; }
+.focus-session-page.nighttime .fs-mode-desc { color: #6B7280; }
+
+/* Custom input */
+.fs-custom-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.fs-custom-input {
+  width: 70px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 2px solid rgba(236, 72, 153, 0.3);
+  background: rgba(236, 72, 153, 0.08);
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #EC4899;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s;
+  backdrop-filter: blur(8px);
+}
+
+.fs-custom-input:focus {
+  border-color: #EC4899;
+}
+
+.fs-custom-input-wrap span {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #EC4899;
+}
+
+/* ═══ SETUP SOUNDS ═══ */
+.fs-setup-sounds {
+  width: 100%;
+  padding: 24px;
+  border-radius: 20px;
+}
+
+.focus-session-page.daytime .fs-setup-sounds {
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(20px) saturate(1.3);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.focus-session-page.nighttime .fs-setup-sounds {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.fs-setup-sounds-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.focus-session-page.daytime .fs-setup-sounds-header { color: #374151; }
+.focus-session-page.nighttime .fs-setup-sounds-header { color: #E5E7EB; }
+
+.fs-setup-sounds-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.fs-setup-sound-options {
+  display: flex;
+  gap: 12px;
+}
+
+.fs-setup-sound-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: all 0.25s;
+}
+
+.focus-session-page.daytime .fs-setup-sound-btn {
+  background: rgba(255, 255, 255, 0.45);
+  color: #4B5563;
+  backdrop-filter: blur(10px);
+}
+
+.focus-session-page.nighttime .fs-setup-sound-btn {
+  background: rgba(255, 255, 255, 0.05);
+  color: #D1D5DB;
+}
+
+.fs-setup-sound-btn:hover {
+  border-color: var(--sound-color);
+  transform: translateY(-2px);
+}
+
+.fs-setup-sound-btn.active {
+  border-color: var(--sound-color);
+  background: color-mix(in srgb, var(--sound-color) 12%, transparent);
+  color: var(--sound-color);
+}
+
+.fs-setup-sound-icon {
+  font-size: 1.2rem;
+}
+
+.fs-sound-active-indicator,
+.fs-sound-playing {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+  margin-left: auto;
+}
+
+.sound-bar {
+  width: 3px;
+  border-radius: 3px;
+  background: var(--sound-color, var(--mode-color, #7C3AED));
+  animation: sound-bar-bounce 0.8s ease-in-out infinite alternate;
+}
+
+.sound-bar:nth-child(1) { height: 40%; animation-delay: 0s; }
+.sound-bar:nth-child(2) { height: 80%; animation-delay: 0.2s; }
+.sound-bar:nth-child(3) { height: 55%; animation-delay: 0.4s; }
+
+@keyframes sound-bar-bounce {
+  0% { transform: scaleY(0.4); }
+  100% { transform: scaleY(1); }
+}
+
+/* ═══ START BUTTON ═══ */
+.fs-start-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+.fs-start-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 48px;
+  border: none;
+  border-radius: 18px;
+  background: var(--mode-gradient, linear-gradient(135deg, #7C3AED, #A78BFA));
+  color: white;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 30px color-mix(in srgb, var(--mode-color) 35%, transparent);
+  transition: all 0.3s;
+}
+
+.fs-start-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* ═══════════════════════════════════════
+   ACTIVE TIMER VIEW
+   ═══════════════════════════════════════ */
+.fs-active-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.fs-timer-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+/* Circular Timer */
+.circular-timer-wrapper {
+  position: relative;
+  width: 300px;
+  height: 300px;
+}
+
+.timer-glow {
+  position: absolute;
+  inset: -30px;
+  border-radius: 50%;
+  filter: blur(40px);
+  animation: timer-glow-pulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes timer-glow-pulse {
+  0% { opacity: 0.4; transform: scale(0.95); }
+  100% { opacity: 0.7; transform: scale(1.05); }
+}
+
+.circular-timer-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 4px 20px rgba(0,0,0,0.1));
+}
+
+.timer-center-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.timer-time-display {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.timer-minutes, .timer-seconds {
+  font-family: 'Outfit', sans-serif;
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.focus-session-page.daytime .timer-minutes,
+.focus-session-page.daytime .timer-seconds { color: #1E3A5F; text-shadow: 0 2px 10px rgba(255,255,255,0.5); }
+
+.focus-session-page.nighttime .timer-minutes,
+.focus-session-page.nighttime .timer-seconds { color: #F3F4F6; }
+
+.timer-separator {
+  font-family: 'Outfit', sans-serif;
+  font-size: 3rem;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.focus-session-page.daytime .timer-separator { color: #9CA3AF; }
+.focus-session-page.nighttime .timer-separator { color: #6B7280; }
+
+.timer-separator.blinking {
+  animation: blink-sep 1s ease-in-out infinite;
+}
+
+@keyframes blink-sep {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+.timer-status-text {
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.focus-session-page.daytime .timer-status-text { color: #6B7280; }
+.focus-session-page.nighttime .timer-status-text { color: #6B7280; }
+
+/* Timer Controls */
+.fs-timer-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.fs-ctrl-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.25s;
+  backdrop-filter: blur(12px);
+}
+
+.fs-ctrl-btn.play, .fs-ctrl-btn.pause {
+  width: 64px;
+  height: 64px;
+}
+
+.fs-ctrl-btn.reset {
+  width: 48px;
+  height: 48px;
+}
+
+.focus-session-page.daytime .fs-ctrl-btn.play {
+  background: linear-gradient(135deg, #7C3AED, #A78BFA);
+  color: white;
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.35);
+}
+
+.focus-session-page.nighttime .fs-ctrl-btn.play {
+  background: linear-gradient(135deg, #7C3AED, #A78BFA);
+  color: white;
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+}
+
+.focus-session-page.daytime .fs-ctrl-btn.pause {
+  background: rgba(245, 158, 11, 0.15);
+  color: #F59E0B;
+}
+
+.focus-session-page.nighttime .fs-ctrl-btn.pause {
+  background: rgba(245, 158, 11, 0.15);
+  color: #FCD34D;
+}
+
+.focus-session-page.daytime .fs-ctrl-btn.reset {
+  background: rgba(255, 255, 255, 0.4);
+  color: #6B7280;
+}
+
+.focus-session-page.nighttime .fs-ctrl-btn.reset {
+  background: rgba(255, 255, 255, 0.08);
+  color: #9CA3AF;
+}
+
+.fs-ctrl-btn:hover {
+  transform: scale(1.08);
+}
+
+/* Current mode badge */
+.fs-current-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid color-mix(in srgb, var(--mode-color) 30%, transparent);
+  color: var(--mode-color);
+  background: color-mix(in srgb, var(--mode-color) 10%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+/* ═══ SOUND PANEL (Active View) ═══ */
+.fs-sound-panel {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  border-radius: 18px;
+}
+
+.focus-session-page.daytime .fs-sound-panel {
+  background: rgba(255, 255, 255, 0.30);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(20px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.focus-session-page.nighttime .fs-sound-panel {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
+}
+
+.fs-sound-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.focus-session-page.daytime .fs-sound-header { color: #374151; }
+.focus-session-page.nighttime .fs-sound-header { color: #E5E7EB; }
+
+.fs-sound-grid {
+  display: flex;
+  gap: 10px;
+}
+
+.fs-sound-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 10px;
+  border-radius: 14px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  transition: all 0.25s;
+}
+
+.focus-session-page.daytime .fs-sound-btn {
+  background: rgba(255, 255, 255, 0.35);
+  color: #6B7280;
+  backdrop-filter: blur(8px);
+}
+
+.focus-session-page.nighttime .fs-sound-btn {
+  background: rgba(255, 255, 255, 0.04);
+  color: #9CA3AF;
+}
+
+.fs-sound-btn:hover {
+  border-color: var(--sound-color);
+}
+
+.fs-sound-btn.active {
+  border-color: var(--sound-color);
+  background: color-mix(in srgb, var(--sound-color) 12%, transparent);
+  color: var(--sound-color);
+}
+
+.fs-sound-emoji {
+  font-size: 1.5rem;
+}
+
+.fs-sound-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+/* Volume slider */
+.fs-volume-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.fs-vol-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.focus-session-page.daytime .fs-vol-btn {
+  background: rgba(0,0,0,0.05);
+  color: #6B7280;
+}
+
+.focus-session-page.nighttime .fs-vol-btn {
+  background: rgba(255,255,255,0.06);
+  color: #9CA3AF;
+}
+
+.fs-volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  background: linear-gradient(
+    to right,
+    var(--mode-color, #7C3AED) 0%,
+    var(--mode-color, #7C3AED) var(--volume-pct, 50%),
+    rgba(128,128,128,0.2) var(--volume-pct, 50%),
+    rgba(128,128,128,0.2) 100%
+  );
+}
+
+.fs-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+.fs-volume-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  cursor: pointer;
+  border: none;
+}
+
+/* ═══ QUOTE ═══ */
+.fs-quote {
+  text-align: center;
+  font-style: italic;
+  font-size: 0.9rem;
+  max-width: 450px;
+  line-height: 1.6;
+  padding: 16px 24px;
+  border-radius: 16px;
+}
+
+.focus-session-page.daytime .fs-quote {
+  color: #4B5563;
+  background: rgba(255,255,255,0.30);
+  border: 1px solid rgba(255,255,255,0.25);
+  backdrop-filter: blur(12px);
+}
+
+.focus-session-page.nighttime .fs-quote {
+  color: #9CA3AF;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px);
+}
+
+/* ═══════════════════════════════════════
+   COMPLETION VIEW
+   ═══════════════════════════════════════ */
+.fs-completion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+  padding: 40px;
+  border-radius: 28px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.focus-session-page.daytime .fs-completion {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(28px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.5);
+}
+
+.focus-session-page.nighttime .fs-completion {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+}
+
+.fs-completion-icon {
+  color: #10B981;
+  filter: drop-shadow(0 4px 12px rgba(16, 185, 129, 0.3));
+}
+
+.fs-completion h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.focus-session-page.daytime .fs-completion h1 { color: #1E3A5F; }
+.focus-session-page.nighttime .fs-completion h1 { color: #F3F4F6; }
+
+.fs-completion p {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.focus-session-page.daytime .fs-completion p { color: #6B7280; }
+.focus-session-page.nighttime .fs-completion p { color: #9CA3AF; }
+
+.fs-completion-stats {
+  display: flex;
+  gap: 24px;
+  margin: 12px 0;
+}
+
+.fs-comp-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.fs-comp-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.focus-session-page.daytime .fs-comp-stat-value { color: #7C3AED; }
+.focus-session-page.nighttime .fs-comp-stat-value { color: #A78BFA; }
+
+.fs-comp-stat-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.focus-session-page.daytime .fs-comp-stat-label { color: #9CA3AF; }
+.focus-session-page.nighttime .fs-comp-stat-label { color: #6B7280; }
+
+.fs-completion-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.fs-btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #7C3AED, #A78BFA);
+  color: white;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.3);
+  transition: all 0.25s;
+}
+
+.fs-btn-primary:hover {
+  box-shadow: 0 8px 28px rgba(124, 58, 237, 0.4);
+}
+
+.fs-btn-secondary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 14px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.focus-session-page.daytime .fs-btn-secondary {
+  background: rgba(255, 255, 255, 0.45);
+  border: 2px solid rgba(255,255,255,0.5);
+  color: #4B5563;
+  backdrop-filter: blur(10px);
+}
+
+.focus-session-page.nighttime .fs-btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  color: #D1D5DB;
+}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════ */
+@media (max-width: 768px) {
+  .fs-modes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .fs-setup-sound-options {
+    flex-direction: column;
+  }
+
+  .fs-header {
+    padding: 12px 16px;
+  }
+
+  .fs-main {
+    padding: 24px 16px 40px;
+  }
+
+  .fs-welcome h1 {
+    font-size: 2rem;
+  }
+
+  .circular-timer-wrapper {
+    width: 250px;
+    height: 250px;
+  }
+
+  .timer-minutes, .timer-seconds {
+    font-size: 2.8rem;
+  }
+
+  .timer-separator {
+    font-size: 2.4rem;
+  }
+
+  .fs-completion-stats {
+    gap: 16px;
+  }
+
+  .fs-completion-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .fs-btn-primary, .fs-btn-secondary {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .fs-modes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fs-mode-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .fs-header-center {
+    display: none;
+  }
+
+  .fs-completion {
+    padding: 24px 20px;
+  }
+
+  .fs-sound-grid {
+    flex-direction: column;
+  }
+}
+
+/* ═══ UTILITY ANIMATIONS ═══ */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Anti-select on interactive elements */
+.fs-ctrl-btn, .fs-sound-btn, .fs-mode-card, .fs-start-btn, .fs-back-btn {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Smooth scrollbar */
+.focus-session-page::-webkit-scrollbar {
+  width: 6px;
+}
+
+.focus-session-page::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.focus-session-page::-webkit-scrollbar-thumb {
+  background: rgba(128,128,128,0.3);
+  border-radius: 3px;
+}

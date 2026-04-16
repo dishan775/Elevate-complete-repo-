@@ -53,6 +53,51 @@
   --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
+/* ─── Elevatev2 Bridge Variables (Light) ─── */
+[data-theme="light"],
+:root {
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-glow: rgba(99,102,241,0.25);
+  --cyan: #22d3ee;
+  --emerald: #10b981;
+  --amber: #f59e0b;
+  --rose: #f43f5e;
+  --background: var(--color-bg);
+  --surface: var(--color-surface);
+  --surface-2: #f5f7ff;
+  --card-border: rgba(99,102,241,0.12);
+  --card-border-hover: rgba(99,102,241,0.4);
+  --text-main: var(--color-text);
+  --text-muted: var(--color-text-secondary);
+  --text-subtle: #9698bc;
+  --glass-bg: rgba(255,255,255,0.75);
+  --grid-line: rgba(99,102,241,0.06);
+  --shadow-glow: 0 0 32px rgba(99,102,241,0.25);
+  --radius-full: 9999px;
+  --radius-xl: 24px;
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ─── Elevatev2 Bridge Variables (Dark) ─── */
+[data-theme="dark"] {
+  --primary: #818cf8;
+  --primary-hover: #a5b4fc;
+  --primary-glow: rgba(129,140,248,0.2);
+  --cyan: #67e8f9;
+  --emerald: #34d399;
+  --surface: var(--color-surface);
+  --surface-2: #13151f;
+  --card-border: rgba(129,140,248,0.12);
+  --card-border-hover: rgba(129,140,248,0.5);
+  --text-main: var(--color-text);
+  --text-muted: var(--color-text-secondary);
+  --text-subtle: #5c5f8a;
+  --glass-bg: rgba(14,16,24,0.85);
+  --grid-line: rgba(129,140,248,0.05);
+  --shadow-glow: 0 0 40px rgba(129,140,248,0.2);
+}
+
 /* ─── Base Reset ─── */
 * {
   margin: 0;

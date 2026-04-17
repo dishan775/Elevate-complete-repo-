@@ -13,7 +13,7 @@ const usePracticeStore = create((set, get) => ({
   fetchSummary: async () => {
     set({ loading: true });
     try {
-      const res = await fetch('/api/english/summary');
+      const res = await fetch('https://elevate-backend-2v69.onrender.com/api/english/summary');
       const data = await res.json();
       if (data.success) {
         set({
@@ -33,7 +33,7 @@ const usePracticeStore = create((set, get) => ({
 
   addXP: async (amount, reason = 'Activity Completion') => {
     try {
-      const res = await fetch('/api/english/add-xp', {
+      const res = await fetch('https://elevate-backend-2v69.onrender.com/api/english/add-xp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount, reason })
@@ -56,7 +56,7 @@ const usePracticeStore = create((set, get) => ({
 
   saveScore: async (score, type) => {
     try {
-      const res = await fetch('/api/english/scores', {
+      const res = await fetch('https://elevate-backend-2v69.onrender.com/api/english/scores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ score, type })

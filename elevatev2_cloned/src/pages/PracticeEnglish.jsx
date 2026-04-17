@@ -92,7 +92,7 @@ export default function PracticeEnglish() {
     setChatLoading(true);
     
     try {
-      const res = await fetch('/api/english/chat', {
+      const res = await fetch('https://elevate-backend-2v69.onrender.com/api/english/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: newMsgs, scenario: 'Salary Negotiation' })
@@ -138,9 +138,9 @@ export default function PracticeEnglish() {
     // Fetch all initial data
     fetchSummary();
     Promise.all([
-      fetch('/api/english/resources').then(res => res.json()),
-      fetch('/api/english/flashcards').then(res => res.json()),
-      fetch('/api/english/scores').then(res => res.json())
+      fetch('https://elevate-backend-2v69.onrender.com/api/english/resources').then(res => res.json()),
+      fetch('https://elevate-backend-2v69.onrender.com/api/english/flashcards').then(res => res.json()),
+      fetch('https://elevate-backend-2v69.onrender.com/api/english/scores').then(res => res.json())
     ]).then(([resData, flashData, scoreData]) => {
       if(resData.success) setChannels(resData.data);
       if(flashData.success) setFlashcards(flashData.data);
@@ -154,7 +154,7 @@ export default function PracticeEnglish() {
 
   const saveScore = async (score, type) => {
     try {
-      const res = await fetch('/api/english/scores', {
+      const res = await fetch('https://elevate-backend-2v69.onrender.com/api/english/scores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ score, type })
@@ -228,7 +228,7 @@ export default function PracticeEnglish() {
   const generateQuiz = async () => {
     setMcqLoading(true);
     try {
-      const res = await fetch('/api/english/generate-mcq', {
+      const res = await fetch('https://elevate-backend-2v69.onrender.com/api/english/generate-mcq', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic: mcqTopic, count: mcqCount })
@@ -254,7 +254,7 @@ export default function PracticeEnglish() {
     setEvalLoading(true);
     setFeedback(null);
     try {
-      const res = await fetch('/api/english/evaluate', {
+      const res = await fetch('https://elevate-backend-2v69.onrender.com/api/english/evaluate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: inputText, type })
@@ -284,7 +284,7 @@ export default function PracticeEnglish() {
     if (!inputText) return;
     setRewriteLoading(true);
     try {
-      const res = await fetch('/api/english/rewrite', {
+      const res = await fetch('https://elevate-backend-2v69.onrender.com/api/english/rewrite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: inputText, tone: selectedTone })
@@ -303,7 +303,7 @@ export default function PracticeEnglish() {
     const scenarioDesc = typeof selectedScenario === 'string' ? selectedScenario : selectedScenario.desc;
     setRewriteLoading(true);
     try {
-      const res = await fetch('/api/english/generate-email', {
+      const res = await fetch('https://elevate-backend-2v69.onrender.com/api/english/generate-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ scenario: scenarioDesc, tone: selectedTone })
@@ -321,7 +321,7 @@ export default function PracticeEnglish() {
     if(!lessonTopic) return;
     setLessonLoading(true);
     try {
-      const res = await fetch('/api/english/generate-lesson', {
+      const res = await fetch('https://elevate-backend-2v69.onrender.com/api/english/generate-lesson', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic: lessonTopic })
@@ -344,7 +344,7 @@ export default function PracticeEnglish() {
     setReadingAnswers({});
     setReadingScore(null);
     try {
-      const res = await fetch('/api/english/generate-reading', {
+      const res = await fetch('https://elevate-backend-2v69.onrender.com/api/english/generate-reading', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic: readingTopic })
@@ -504,7 +504,7 @@ export default function PracticeEnglish() {
                 onClick={async () => {
                   setProgLoading(true); setProgChallenge(null); setShowHint(false); setShowSolution(false); setUserCode('');
                   try {
-                    const res = await fetch('/api/programming/challenge', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic: progTopic, difficulty: progDifficulty }) });
+                    const res = await fetch('https://elevate-backend-2v69.onrender.com/api/programming/challenge', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic: progTopic, difficulty: progDifficulty }) });
                     const data = await res.json();
                     if (data.success) { setProgChallenge(data.data); addXP(15, 'Coding Challenge Generation'); }
                   } catch(err) { console.error(err); }
@@ -634,7 +634,7 @@ export default function PracticeEnglish() {
                 onClick={async () => {
                   setCsLoading(true); setCsQuestion(null); setCsSelected(null);
                   try {
-                    const res = await fetch('/api/cs/question', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic: csTopic }) });
+                    const res = await fetch('https://elevate-backend-2v69.onrender.com/api/cs/question', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic: csTopic }) });
                     const data = await res.json();
                     if (data.success) setCsQuestion(data.data);
                   } catch(err) { console.error(err); }
@@ -717,7 +717,7 @@ export default function PracticeEnglish() {
                       onClick={async () => {
                         setCsLoading(true); setCsQuestion(null); setCsSelected(null);
                         try {
-                          const res = await fetch('/api/cs/question', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic: csTopic }) });
+                          const res = await fetch('https://elevate-backend-2v69.onrender.com/api/cs/question', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic: csTopic }) });
                           const data = await res.json();
                           if (data.success) setCsQuestion(data.data);
                         } catch(err) { console.error(err); }

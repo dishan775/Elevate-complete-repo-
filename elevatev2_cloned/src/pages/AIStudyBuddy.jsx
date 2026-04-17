@@ -28,7 +28,7 @@ export default function AIStudyBuddy() {
     setIsTyping(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/chat/ask', {
+      const response = await fetch('https://elevate-backend-2v69.onrender.com/api/chat/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: userMessage.text })

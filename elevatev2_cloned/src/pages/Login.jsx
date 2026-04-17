@@ -45,7 +45,7 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      const endpoint = isSignUpMode ? '/api/auth/register' : '/api/auth/login';
+      const endpoint = isSignUpMode ? 'https://elevate-backend-2v69.onrender.com/api/auth/register' : 'https://elevate-backend-2v69.onrender.com/api/auth/login';
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -73,7 +73,7 @@ const Login = () => {
     onSuccess: async (tokenResponse) => {
       setIsLoading(true);
       try {
-        const res = await fetch('/api/auth/google', {
+        const res = await fetch('https://elevate-backend-2v69.onrender.com/api/auth/google', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: tokenResponse.access_token }),

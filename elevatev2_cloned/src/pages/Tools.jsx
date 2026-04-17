@@ -24,7 +24,7 @@ function CurrencyConverter() {
     }
     setLoading(true); setError('');
     try {
-      const res = await fetch(`https://api.frankfurter.app/latest?base=${from}&symbols=${to}`);
+      const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${from}`);
       if (!res.ok) throw new Error('API error');
       const data = await res.json();
       const r = data.rates[to];

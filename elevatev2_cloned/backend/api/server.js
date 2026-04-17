@@ -5,6 +5,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
 const routes = require('./routes');
+const practiceRoutes = require('./practiceRoutes');
 const connectDB = require('../config/db');
 
 dotenv.config({ path: path.join(__dirname, '../.env') });
@@ -28,6 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api', routes);
+app.use('/', practiceRoutes);
 
 // Health Check
 app.get('/health', (req, res) => {

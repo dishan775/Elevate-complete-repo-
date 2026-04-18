@@ -636,4 +636,58 @@ router.post('/api/cs/question', async (req, res) => {
   }, 700);
 });
 
+router.post('/api/chat/ask', async (req, res) => {
+  const { question } = req.body;
+  if (!question) return res.status(400).json({ success: false, error: "No question provided" });
+
+  const qLower = question.toLowerCase();
+  let foundContext = null;
+
+  // Search Core CS
+  if (typeof csFallbacks !== 'undefined') {
+    for (const topic in csFallbacks) {
+      for (const item of csFallbacks[topic]) {
+        if (qLower.includes(item.topic?.toLowerCase() || '') || 
+            item.question?.toLowerCase().includes(qLower) || 
+            (qLower.split(' ').some(word => word.length > 4 && item.explanation?.toLowerCase().includes(word)))) {
+          foundContext = item;
+          break;
+        }
+      }
+      if (foundContext) break;
+    }
+  }
+
+  // Search Programming if not found
+  if (!foundContext && typeof programmingFallbacks !== 'undefined') {
+    for (const topic in programmingFallbacks) {
+      for (const item of programmingFallbacks[topic]) {
+        if (qLower.includes(item.title?.toLowerCase() || '') || 
+            (qLower.split(' ').some(word => word.length > 4 && item.problem?.toLowerCase().includes(word)))) {
+          foundContext = item;
+          break;
+        }
+      }
+      if (foundContext) break;
+    }
+  }
+
+  setTimeout(() => {
+    let answer = "";
+    if (qLower.includes("hello") || qLower.includes("hi") || qLower.includes("hey")) {
+      answer = "Hello there! I'm your AI Study Buddy. Feel free to ask me any computer science, programming, or tech interview questions you have!";
+    } 
+    else if (foundContext && foundContext.explanation) {
+      answer = `Based on my knowledge base regarding **${foundContext.topic}**:\n\n${foundContext.explanation}\n\nDid you know? A related question often asked is: *${foundContext.question}*`;
+    } 
+    else if (foundContext && foundContext.problem) {
+      answer = `Ah, you're asking about something related to **${foundContext.title}**!\n\nHere is a common problem in this area:\n*${foundContext.problem}*\n\n**Hint:** ${foundContext.hint}\n\nDo you want me to show you the code solution for this?`;
+    } 
+    else {
+      answer = "That's an interesting question! My specific knowledge base doesn't have an exact match right now, but Computer Science is a vast field. Could you try rephrasing or asking about core topics like Data Structures, Networking, OS, or Databases?";
+    }
+    res.json({ success: true, answer });
+  }, 1000);
+});
+
 module.exports = router;

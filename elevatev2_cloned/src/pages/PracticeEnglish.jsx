@@ -1,9 +1,18 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { PlayCircle, Mic, FileText, ArrowRight, Loader, CheckCircle, RefreshCw, AlertCircle, TrendingUp, BookOpen, Volume2, ChevronRight, ChevronLeft, CheckSquare, Target, MessageSquare, Award, Zap, Book, Code, Brain, Terminal, Lightbulb, Eye, EyeOff, RotateCcw, Cpu, Network, Server, Database, GitBranch, Layers, Pause, Play, X, ZoomIn, ZoomOut } from 'lucide-react';
 import usePracticeStore from '../store/practiceStore';
 
 export default function PracticeEnglish() {
-  const [activeTab, setActiveTab] = useState('overview'); // resources, voice, email, vocab, analytics, mcq, lessons, chat, reading
+  const location = useLocation();
+  const getInitialTab = () => {
+    const p = location.pathname;
+    if (p.includes('/practice/reading')) return 'reading';
+    if (p.includes('/practice/programming')) return 'programming';
+    if (p.includes('/practice/cs')) return 'cs';
+    return 'overview';
+  };
+  const [activeTab, setActiveTab] = useState(getInitialTab); // resources, voice, email, vocab, analytics, mcq, lessons, chat, reading
   const [channels, setChannels] = useState([]);
   const [flashcards, setFlashcards] = useState([]);
   const [mcqs, setMcqs] = useState([]);

@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { PlayCircle, Mic, FileText, ArrowRight, Loader, CheckCircle, RefreshCw, AlertCircle, TrendingUp, BookOpen, Volume2, ChevronRight, CheckSquare, Target, MessageSquare, Award, Zap, Book, Code, Brain, Terminal, Lightbulb, Eye, EyeOff, RotateCcw, Cpu, Network, Server, Database, GitBranch, Layers } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { PlayCircle, Mic, FileText, ArrowRight, Loader, CheckCircle, RefreshCw, AlertCircle, TrendingUp, BookOpen, Volume2, ChevronRight, ChevronLeft, CheckSquare, Target, MessageSquare, Award, Zap, Book, Code, Brain, Terminal, Lightbulb, Eye, EyeOff, RotateCcw, Cpu, Network, Server, Database, GitBranch, Layers, Pause, Play, X, ZoomIn, ZoomOut } from 'lucide-react';
 import usePracticeStore from '../store/practiceStore';
 
 export default function PracticeEnglish() {
@@ -42,6 +42,28 @@ export default function PracticeEnglish() {
   const [readingScore, setReadingScore] = useState(null);
   
   const [revealedAnswers, setRevealedAnswers] = useState({});
+
+  // Reading Sub-Tab State
+  const [readingSubTab, setReadingSubTab] = useState('comprehension');
+
+  // Fast Reading States
+  const [frIsPlaying, setFrIsPlaying] = useState(false);
+  const [frWordIndex, setFrWordIndex] = useState(0);
+  const [frSpeed, setFrSpeed] = useState(250);
+  const [frFinished, setFrFinished] = useState(false);
+  const frIntervalRef = useRef(null);
+  const frPassage = `Success is simple. Do what is right, the right way, at the right time. You know about habits. They can be hard to break and hard to create. But we are unknowingly acquiring new ones all the time. When we start and continue a way of thinking or a way of acting over a long enough period, we have created a new habit. The choice we face is whether or not we want to form habits that get us what we want from life. If we do, then the Focusing Question is the most powerful success habit we can have. For me, the Focusing Question is a way of life. I use it to find my most leveraged priority, make the most out of my time, and get the biggest bang for my buck. Whenever the outcome absolutely matters, I ask it. I ask it when I wake up and start my day. I ask it when I get to work, and again when I get home. What is the ONE Thing I can do such that by doing it everything else will be easier or unnecessary? And when I know the answer, I continue to ask it until I can see the connections and all my dominoes are lined up. Obviously, you can drive yourself nuts analyzing every little aspect of everything you might do. I do not do that, and you should not either. Start with the big stuff and see where it takes you. Over time, you will develop your own sense of when to use the big-picture question and when to use the small-focus question. The Focusing Question is the foundational habit I use to achieve extraordinary results and lead a big life.`;
+  const frWords = frPassage.split(/\s+/);
+
+  // Book Reader States
+  const [bookOpen, setBookOpen] = useState(false);
+  const [bookPage, setBookPage] = useState(0);
+  const [bookZoom, setBookZoom] = useState(1);
+  const bookPages = [
+    '/images/books/one-thing-page1.png',
+    '/images/books/one-thing-page2.png',
+    '/images/books/one-thing-page3.png',
+  ];
 
   // Programming Tab States
   const [progTopic, setProgTopic] = useState('arrays');
@@ -1082,137 +1104,317 @@ export default function PracticeEnglish() {
         {/* READING COMPREHENSION */}
         {activeTab === 'reading' && (
           <div className="animate-fade-in">
-            <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>Reading <span className="text-gradient">Comprehension</span></h1>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '32px' }}>Read formal corporate texts and answer questions to test your understanding.</p>
+            <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>Enhance <span className="text-gradient">Reading Skills</span></h1>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>Boost comprehension, reading speed, and explore curated books.</p>
 
-            <div className="card" style={{ marginBottom: '32px', display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
-              <div style={{ flex: '1 1 250px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '0.9rem' }}>Choose Scenario Topic</label>
-                <select 
-                  className="card"
-                  value={readingTopic}
-                  onChange={(e) => setReadingTopic(e.target.value)}
-                  style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', cursor: 'pointer', outline: 'none' }}
-                >
-                  <option value="IT Security Policy Update">IT Security Policy Update</option>
-                  <option value="Quarterly Earnings Memo">Quarterly Earnings Memo</option>
-                  <option value="Technical Outage Post-Mortem">Technical Outage Post-Mortem</option>
-                  <option value="HR Performance Review Guidelines">HR Performance Review Guidelines</option>
-                  <option value="Client Project Kickoff">Client Project Kickoff</option>
-                </select>
-              </div>
-              
-              <button onClick={generateReading} disabled={readingLoading} className="btn btn-primary" style={{ marginTop: '26px' }}>
-                {readingLoading ? <><Loader size={18} className="animate-spin" /> Generating Memo...</> : <><Book size={18} /> Generate Passage</>}
-              </button>
+            {/* ── Sub-Tab Navigation ── */}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '32px', borderBottom: '2px solid #e2e8f0', paddingBottom: '0' }}>
+              {[
+                { id: 'comprehension', label: 'Reading Comprehension', icon: <FileText size={16}/> },
+                { id: 'fastread', label: 'Fast Reading', icon: <Zap size={16}/> },
+                { id: 'books', label: 'Read Books', icon: <Book size={16}/> },
+              ].map(t => (
+                <button key={t.id} onClick={() => { setReadingSubTab(t.id); if(t.id === 'fastread'){ setFrIsPlaying(false); setFrWordIndex(0); setFrFinished(false); clearInterval(frIntervalRef.current); } }}
+                  style={{ display:'flex', alignItems:'center', gap:'6px', padding:'12px 20px', border:'none', background:'none',
+                    fontWeight: readingSubTab === t.id ? '700' : '500', fontSize:'0.92rem', cursor:'pointer',
+                    color: readingSubTab === t.id ? '#7c3aed' : '#64748b',
+                    borderBottom: readingSubTab === t.id ? '3px solid #7c3aed' : '3px solid transparent',
+                    marginBottom:'-2px', transition:'all 0.2s' }}>
+                  {t.icon} {t.label}
+                </button>
+              ))}
             </div>
 
-            {readingData && (
-              <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                
-                {/* The Passage */}
-                <div className="card" style={{ backgroundColor: '#ffffff', border: '1px solid var(--card-border)', padding: '40px', boxShadow: 'var(--shadow-md)', borderLeft: '4px solid var(--primary)' }}>
-                  <h2 style={{ fontSize: '1.8rem', marginBottom: '24px', color: '#0f172a', borderBottom: '1px solid var(--card-border)', paddingBottom: '16px' }}>{readingData.title}</h2>
-                  <div style={{ fontSize: '1.1rem', lineHeight: '1.8', color: '#334155', whiteSpace: 'pre-wrap' }}>
-                    {readingData.content}
+            {/* ═══ SUB-TAB: Comprehension (original) ═══ */}
+            {readingSubTab === 'comprehension' && (
+              <div className="animate-fade-in">
+                <div className="card" style={{ marginBottom: '32px', display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <div style={{ flex: '1 1 250px' }}>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '0.9rem' }}>Choose Scenario Topic</label>
+                    <select className="card" value={readingTopic} onChange={(e) => setReadingTopic(e.target.value)}
+                      style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', cursor: 'pointer', outline: 'none' }}>
+                      <option value="IT Security Policy Update">IT Security Policy Update</option>
+                      <option value="Quarterly Earnings Memo">Quarterly Earnings Memo</option>
+                      <option value="Technical Outage Post-Mortem">Technical Outage Post-Mortem</option>
+                      <option value="HR Performance Review Guidelines">HR Performance Review Guidelines</option>
+                      <option value="Client Project Kickoff">Client Project Kickoff</option>
+                    </select>
                   </div>
+                  <button onClick={generateReading} disabled={readingLoading} className="btn btn-primary" style={{ marginTop: '26px' }}>
+                    {readingLoading ? <><Loader size={18} className="animate-spin" /> Generating Memo...</> : <><Book size={18} /> Generate Passage</>}
+                  </button>
                 </div>
-
-                {/* Vocabulary Extraction */}
-                <div>
-                  <h3 style={{ fontSize: '1.3rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}><BookOpen size={20} color="var(--primary)"/> Key Vocabulary</h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
-                    {readingData.vocabulary.map((v, idx) => (
-                      <div key={idx} className="card" style={{ padding: '16px', borderLeft: '3px solid #0ea5e9' }}>
-                        <h4 style={{ color: '#0f172a', marginBottom: '4px', fontSize: '1.1rem' }}>{v.word}</h4>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>{v.definition}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Comprehension Quiz */}
-                <div className="card">
-                  <h3 style={{ fontSize: '1.4rem', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}><CheckSquare size={22} color="#10b981"/> Comprehension Check</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    {readingData.questions.map((q, qIdx) => (
-                      <div key={qIdx} style={{ paddingBottom: '24px', borderBottom: qIdx < readingData.questions.length - 1 ? '1px solid var(--card-border)' : 'none' }}>
-                        <p style={{ fontWeight: '600', fontSize: '1.1rem', marginBottom: '16px' }}>{qIdx + 1}. {q.question}</p>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                          {q.options.map((opt, oIdx) => {
-                            const isSelected = readingAnswers[qIdx] === oIdx;
-                            let bgColor = isSelected ? '#eff6ff' : '#ffffff';
-                            let bdColor = isSelected ? '#3b82f6' : 'var(--card-border)';
-                            let textColor = isSelected ? '#1d4ed8' : '#334155';
-
-                            if (readingScore !== null) {
-                              const isCorrect = q.correctIndex === oIdx;
-                              if (isCorrect) {
-                                bgColor = '#ecfdf5'; bdColor = '#10b981'; textColor = '#065f46';
-                              } else if (isSelected && !isCorrect) {
-                                bgColor = '#fef2f2'; bdColor = '#ef4444'; textColor = '#991b1b';
-                              } else {
-                                bgColor = '#ffffff'; bdColor = 'var(--card-border)'; opacity = 0.5;
-                              }
-                            }
-
-                            return (
-                              <button
-                                key={oIdx}
-                                disabled={readingScore !== null}
-                                onClick={() => setReadingAnswers({...readingAnswers, [qIdx]: oIdx })}
-                                style={{
-                                  display: 'flex', alignItems: 'center', gap: '12px', padding: '16px',
-                                  borderRadius: '8px', border: `1px solid ${bdColor}`, backgroundColor: bgColor,
-                                  color: textColor, cursor: readingScore !== null ? 'default' : 'pointer',
-                                  textAlign: 'left', transition: 'all 0.2s', fontWeight: isSelected ? '500' : '400',
-                                  opacity: readingScore !== null && !isSelected && q.correctIndex !== oIdx ? 0.6 : 1
-                                }}
-                              >
-                                <div style={{ minWidth:'24px', height:'24px', borderRadius:'50%', border: `2px solid ${isSelected ? bdColor : '#cbd5e1'}`, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                                  {isSelected && <div style={{ width:'12px', height:'12px', borderRadius:'50%', backgroundColor:bdColor }} />}
-                                </div>
-                                {opt}
-                              </button>
-                            )
-                          })}
-                        </div>
-                        {readingScore !== null && (
-                          <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#f8fafc', borderRadius: '8px', borderLeft: '4px solid #64748b' }}>
-                            <p style={{ fontSize: '0.95rem', color: '#334155' }}><strong>Explanation:</strong> {q.explanation}</p>
+                {readingData && (
+                  <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                    <div className="card" style={{ backgroundColor: '#ffffff', border: '1px solid var(--card-border)', padding: '40px', boxShadow: 'var(--shadow-md)', borderLeft: '4px solid var(--primary)' }}>
+                      <h2 style={{ fontSize: '1.8rem', marginBottom: '24px', color: '#0f172a', borderBottom: '1px solid var(--card-border)', paddingBottom: '16px' }}>{readingData.title}</h2>
+                      <div style={{ fontSize: '1.1rem', lineHeight: '1.8', color: '#334155', whiteSpace: 'pre-wrap' }}>{readingData.content}</div>
+                    </div>
+                    <div>
+                      <h3 style={{ fontSize: '1.3rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}><BookOpen size={20} color="var(--primary)"/> Key Vocabulary</h3>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+                        {readingData.vocabulary.map((v, idx) => (
+                          <div key={idx} className="card" style={{ padding: '16px', borderLeft: '3px solid #0ea5e9' }}>
+                            <h4 style={{ color: '#0f172a', marginBottom: '4px', fontSize: '1.1rem' }}>{v.word}</h4>
+                            <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>{v.definition}</p>
                           </div>
-                        )}
+                        ))}
                       </div>
+                    </div>
+                    <div className="card">
+                      <h3 style={{ fontSize: '1.4rem', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}><CheckSquare size={22} color="#10b981"/> Comprehension Check</h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                        {readingData.questions.map((q, qIdx) => (
+                          <div key={qIdx} style={{ paddingBottom: '24px', borderBottom: qIdx < readingData.questions.length - 1 ? '1px solid var(--card-border)' : 'none' }}>
+                            <p style={{ fontWeight: '600', fontSize: '1.1rem', marginBottom: '16px' }}>{qIdx + 1}. {q.question}</p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                              {q.options.map((opt, oIdx) => {
+                                const isSelected = readingAnswers[qIdx] === oIdx;
+                                let bgColor = isSelected ? '#eff6ff' : '#ffffff';
+                                let bdColor = isSelected ? '#3b82f6' : 'var(--card-border)';
+                                let textColor = isSelected ? '#1d4ed8' : '#334155';
+                                if (readingScore !== null) {
+                                  const isCorrect = q.correctIndex === oIdx;
+                                  if (isCorrect) { bgColor = '#ecfdf5'; bdColor = '#10b981'; textColor = '#065f46'; }
+                                  else if (isSelected && !isCorrect) { bgColor = '#fef2f2'; bdColor = '#ef4444'; textColor = '#991b1b'; }
+                                  else { bgColor = '#ffffff'; bdColor = 'var(--card-border)'; }
+                                }
+                                return (
+                                  <button key={oIdx} disabled={readingScore !== null} onClick={() => setReadingAnswers({...readingAnswers, [qIdx]: oIdx })}
+                                    style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', borderRadius: '8px', border: `1px solid ${bdColor}`, backgroundColor: bgColor, color: textColor, cursor: readingScore !== null ? 'default' : 'pointer', textAlign: 'left', transition: 'all 0.2s', fontWeight: isSelected ? '500' : '400', opacity: readingScore !== null && !isSelected && q.correctIndex !== oIdx ? 0.6 : 1 }}>
+                                    <div style={{ minWidth:'24px', height:'24px', borderRadius:'50%', border: `2px solid ${isSelected ? bdColor : '#cbd5e1'}`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                                      {isSelected && <div style={{ width:'12px', height:'12px', borderRadius:'50%', backgroundColor:bdColor }} />}
+                                    </div>
+                                    {opt}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                            {readingScore !== null && (
+                              <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#f8fafc', borderRadius: '8px', borderLeft: '4px solid #64748b' }}>
+                                <p style={{ fontSize: '0.95rem', color: '#334155' }}><strong>Explanation:</strong> {q.explanation}</p>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      {Object.keys(readingAnswers).length === readingData.questions.length && readingScore === null && (
+                        <div style={{ marginTop: '32px', display: 'flex', justifyContent: 'flex-end' }}>
+                          <button onClick={submitReadingQuiz} className="btn btn-primary" style={{ padding: '12px 32px' }}>Submit Answers <CheckCircle size={18} /></button>
+                        </div>
+                      )}
+                      {readingScore !== null && (
+                        <div className="animate-fade-in" style={{ marginTop: '32px', padding: '24px', borderRadius: '12px', backgroundColor: readingScore >= 70 ? '#ecfdf5' : '#fef2f2', border: `1px solid ${readingScore >= 70 ? '#10b981' : '#ef4444'}`, display: 'flex', alignItems: 'center', gap: '16px' }}>
+                          <div style={{ padding: '16px', backgroundColor: 'white', borderRadius: '50%', boxShadow: 'var(--shadow-sm)' }}><Award size={32} color={readingScore >= 70 ? '#10b981' : '#ef4444'} /></div>
+                          <div>
+                            <h3 style={{ fontSize: '1.4rem', color: readingScore >= 70 ? '#065f46' : '#991b1b', margin: 0 }}>You scored {readingScore}%!</h3>
+                            <p style={{ color: readingScore >= 70 ? '#047857' : '#b91c1c', marginTop: '4px' }}>{readingScore === 100 ? "Perfect reading comprehension! Extra 25 XP awarded." : "Review the explanations above to see what you missed."}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ═══ SUB-TAB: Fast Reading ═══ */}
+            {readingSubTab === 'fastread' && (
+              <div className="animate-fade-in">
+                {/* Info Banner */}
+                <div className="card" style={{ marginBottom:'28px', background:'linear-gradient(135deg, #faf5ff 0%, #f0e7ff 100%)', border:'1px solid #e9d5ff', padding:'24px 28px' }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:'12px', marginBottom:'12px' }}>
+                    <div style={{ width:'40px', height:'40px', borderRadius:'10px', background:'linear-gradient(135deg,#7c3aed,#a855f7)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <Zap size={20} color="#fff" />
+                    </div>
+                    <div>
+                      <h3 style={{ margin:0, color:'#4c1d95', fontSize:'1.15rem' }}>Speed Reading Trainer</h3>
+                      <p style={{ margin:0, color:'#7c3aed', fontSize:'0.82rem' }}>Focus on the highlighted word — train your brain to read faster</p>
+                    </div>
+                  </div>
+                  <div style={{ display:'flex', gap:'12px', alignItems:'center', flexWrap:'wrap' }}>
+                    <span style={{ fontSize:'0.82rem', color:'#6b21a8', fontWeight:'600' }}>Speed:</span>
+                    {[{label:'Slow', ms:400},{label:'Medium', ms:250},{label:'Fast', ms:150}].map(s => (
+                      <button key={s.label} onClick={() => { setFrSpeed(s.ms); if(frIsPlaying){ clearInterval(frIntervalRef.current); frIntervalRef.current = setInterval(() => setFrWordIndex(p => p + 1), s.ms); } }}
+                        style={{ padding:'6px 16px', borderRadius:'20px', border: frSpeed===s.ms ? '2px solid #7c3aed' : '1px solid #d8b4fe', background: frSpeed===s.ms ? '#7c3aed' : 'white', color: frSpeed===s.ms ? '#fff' : '#6b21a8', fontSize:'0.82rem', fontWeight:'600', cursor:'pointer', transition:'all 0.2s' }}>
+                        {s.label} ({Math.round(60000/s.ms)} wpm)
+                      </button>
                     ))}
                   </div>
+                </div>
 
-                  {/* Submission */}
-                  {Object.keys(readingAnswers).length === readingData.questions.length && readingScore === null && (
-                    <div style={{ marginTop: '32px', display: 'flex', justifyContent: 'flex-end' }}>
-                      <button onClick={submitReadingQuiz} className="btn btn-primary" style={{ padding: '12px 32px' }}>
-                        Submit Answers <CheckCircle size={18} />
-                      </button>
+                {/* Word Display */}
+                <div className="card" style={{ textAlign:'center', padding:'60px 32px', marginBottom:'24px', background:'linear-gradient(180deg, #fefefe 0%, #f8fafc 100%)', position:'relative', overflow:'hidden', minHeight:'260px', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
+                  {/* Decorative circles */}
+                  <div style={{ position:'absolute', top:'-30px', right:'-30px', width:'120px', height:'120px', borderRadius:'50%', background:'rgba(139,92,246,0.06)' }} />
+                  <div style={{ position:'absolute', bottom:'-20px', left:'-20px', width:'80px', height:'80px', borderRadius:'50%', background:'rgba(236,72,153,0.06)' }} />
+
+                  {!frIsPlaying && !frFinished && frWordIndex === 0 && (
+                    <div>
+                      <div style={{ width:'80px', height:'80px', borderRadius:'50%', background:'linear-gradient(135deg,#7c3aed,#ec4899)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 20px' }}>
+                        <Eye size={36} color="#fff" />
+                      </div>
+                      <h2 style={{ color:'#1e293b', marginBottom:'8px', fontSize:'1.6rem' }}>Ready to Speed Read?</h2>
+                      <p style={{ color:'#64748b', fontSize:'0.95rem', maxWidth:'400px' }}>Focus on each word as it appears. Train your eyes to read without sub-vocalizing.</p>
                     </div>
                   )}
 
-                  {readingScore !== null && (
-                    <div className="animate-fade-in" style={{ marginTop: '32px', padding: '24px', borderRadius: '12px', backgroundColor: readingScore >= 70 ? '#ecfdf5' : '#fef2f2', border: `1px solid ${readingScore >= 70 ? '#10b981' : '#ef4444'}`, display: 'flex', alignItems: 'center', gap: '16px' }}>
-                      <div style={{ padding: '16px', backgroundColor: 'white', borderRadius: '50%', boxShadow: 'var(--shadow-sm)' }}>
-                        <Award size={32} color={readingScore >= 70 ? '#10b981' : '#ef4444'} />
-                      </div>
-                      <div>
-                        <h3 style={{ fontSize: '1.4rem', color: readingScore >= 70 ? '#065f46' : '#991b1b', margin: 0 }}>
-                          You scored {readingScore}%!
-                        </h3>
-                        <p style={{ color: readingScore >= 70 ? '#047857' : '#b91c1c', marginTop: '4px' }}>
-                          {readingScore === 100 ? "Perfect reading comprehension! Extra 25 XP awarded." : "Review the explanations above to see what you missed."}
-                        </p>
+                  {(frIsPlaying || (!frIsPlaying && frWordIndex > 0 && !frFinished)) && (
+                    <div>
+                      <p style={{ fontSize:'3.2rem', fontWeight:'800', color:'#0f172a', letterSpacing:'-0.02em', lineHeight:'1.2', margin:'0 0 16px 0', fontFamily:"'Inter', sans-serif",
+                        animation: 'fadeInScale 0.15s ease-out' }}>
+                        {frWords[frWordIndex] || ''}
+                      </p>
+                      <div style={{ fontSize:'0.8rem', color:'#94a3b8' }}>Word {frWordIndex + 1} of {frWords.length}</div>
+                      {/* Progress bar */}
+                      <div style={{ width:'300px', maxWidth:'100%', height:'4px', backgroundColor:'#e2e8f0', borderRadius:'2px', margin:'16px auto 0', overflow:'hidden' }}>
+                        <div style={{ height:'100%', width:`${((frWordIndex+1)/frWords.length)*100}%`, background:'linear-gradient(90deg,#7c3aed,#ec4899)', borderRadius:'2px', transition:'width 0.15s linear' }} />
                       </div>
                     </div>
                   )}
+
+                  {frFinished && (
+                    <div className="animate-fade-in">
+                      <div style={{ width:'80px', height:'80px', borderRadius:'50%', background:'linear-gradient(135deg,#10b981,#34d399)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 20px' }}>
+                        <CheckCircle size={36} color="#fff" />
+                      </div>
+                      <h2 style={{ color:'#065f46', marginBottom:'8px' }}>Session Complete!</h2>
+                      <p style={{ color:'#047857', fontSize:'0.95rem', marginBottom:'4px' }}>You read <strong>{frWords.length} words</strong> at <strong>{Math.round(60000/frSpeed)} wpm</strong></p>
+                      <p style={{ color:'#64748b', fontSize:'0.85rem' }}>Estimated time: {((frWords.length * frSpeed)/1000).toFixed(1)}s</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Controls */}
+                <div style={{ display:'flex', gap:'12px', justifyContent:'center' }}>
+                  {!frFinished && (
+                    <button onClick={() => {
+                      if (frIsPlaying) { clearInterval(frIntervalRef.current); setFrIsPlaying(false); }
+                      else {
+                        setFrIsPlaying(true); setFrFinished(false);
+                        frIntervalRef.current = setInterval(() => {
+                          setFrWordIndex(prev => {
+                            if (prev >= frWords.length - 1) { clearInterval(frIntervalRef.current); setFrIsPlaying(false); setFrFinished(true); return prev; }
+                            return prev + 1;
+                          });
+                        }, frSpeed);
+                      }
+                    }} className="btn btn-primary" style={{ padding:'14px 36px', fontSize:'1rem', borderRadius:'12px', gap:'8px', display:'flex', alignItems:'center' }}>
+                      {frIsPlaying ? <><Pause size={18}/> Pause</> : <><Play size={18}/> {frWordIndex > 0 ? 'Resume' : 'Start Reading'}</>}
+                    </button>
+                  )}
+                  {(frWordIndex > 0 || frFinished) && (
+                    <button onClick={() => { clearInterval(frIntervalRef.current); setFrIsPlaying(false); setFrWordIndex(0); setFrFinished(false); }}
+                      style={{ padding:'14px 28px', borderRadius:'12px', border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', display:'flex', alignItems:'center', gap:'8px', fontWeight:'600', color:'#64748b', fontSize:'0.95rem' }}>
+                      <RotateCcw size={16}/> Restart
+                    </button>
+                  )}
+                </div>
+
+                {/* Passage Preview */}
+                <div className="card" style={{ marginTop:'28px', padding:'24px 28px', maxHeight:'180px', overflow:'auto', borderLeft:'4px solid #e9d5ff' }}>
+                  <h4 style={{ fontSize:'0.82rem', textTransform:'uppercase', letterSpacing:'0.06em', color:'#7c3aed', marginBottom:'12px' }}>Full Passage Preview</h4>
+                  <p style={{ fontSize:'0.9rem', lineHeight:'1.8', color:'#475569' }}>
+                    {frWords.map((w, i) => (
+                      <span key={i} style={{ backgroundColor: i === frWordIndex && frIsPlaying ? '#fef08a' : 'transparent', padding: i === frWordIndex && frIsPlaying ? '2px 4px' : '0', borderRadius:'4px', fontWeight: i === frWordIndex && frIsPlaying ? '700' : '400', transition:'all 0.1s' }}>{w} </span>
+                    ))}
+                  </p>
                 </div>
               </div>
             )}
+
+            {/* ═══ SUB-TAB: Read Books ═══ */}
+            {readingSubTab === 'books' && (
+              <div className="animate-fade-in">
+                {!bookOpen ? (
+                  <div>
+                    <div className="card" style={{ marginBottom:'24px', background:'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', border:'1px solid #fde68a', padding:'20px 24px' }}>
+                      <p style={{ color:'#92400e', fontSize:'0.9rem', margin:0 }}><strong>📚 Your Library</strong> — Click on a book cover to start reading in our immersive viewer.</p>
+                    </div>
+
+                    {/* Book Shelf */}
+                    <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(220px, 1fr))', gap:'24px' }}>
+                      {/* The ONE Thing Book */}
+                      <div onClick={() => { setBookOpen(true); setBookPage(0); setBookZoom(1); }} className="card" style={{ cursor:'pointer', padding:0, overflow:'hidden', transition:'all 0.3s ease', border:'1px solid #e2e8f0', position:'relative' }}
+                        onMouseEnter={e => { e.currentTarget.style.transform='translateY(-6px)'; e.currentTarget.style.boxShadow='0 20px 40px rgba(0,0,0,0.12)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow=''; }}>
+                        {/* Book Cover */}
+                        <div style={{ height:'280px', background:'linear-gradient(145deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'28px', position:'relative', overflow:'hidden' }}>
+                          {/* Decorative beam */}
+                          <div style={{ position:'absolute', top:'-50px', right:'-50px', width:'200px', height:'200px', borderRadius:'50%', background:'rgba(232,121,35,0.15)' }} />
+                          <div style={{ position:'absolute', bottom:'-30px', left:'-30px', width:'140px', height:'140px', borderRadius:'50%', background:'rgba(232,121,35,0.08)' }} />
+                          {/* Title */}
+                          <div style={{ textAlign:'center', position:'relative', zIndex:1 }}>
+                            <p style={{ color:'#e87923', fontSize:'0.72rem', fontWeight:'700', textTransform:'uppercase', letterSpacing:'0.15em', marginBottom:'8px' }}>Gary Keller</p>
+                            <h3 style={{ color:'#ffffff', fontSize:'1.55rem', fontWeight:'800', lineHeight:'1.2', marginBottom:'4px' }}>THE</h3>
+                            <h2 style={{ color:'#e87923', fontSize:'2.4rem', fontWeight:'900', lineHeight:'1', marginBottom:'4px', fontStyle:'italic' }}>ONE</h2>
+                            <h3 style={{ color:'#ffffff', fontSize:'1.55rem', fontWeight:'800', lineHeight:'1.2', marginBottom:'12px' }}>THING</h3>
+                            <div style={{ width:'40px', height:'2px', background:'#e87923', margin:'0 auto 12px' }} />
+                            <p style={{ color:'#94a3b8', fontSize:'0.68rem', lineHeight:'1.4', maxWidth:'160px' }}>The surprisingly simple truth behind extraordinary results</p>
+                          </div>
+                        </div>
+                        {/* Book Info */}
+                        <div style={{ padding:'16px 20px' }}>
+                          <h4 style={{ color:'#0f172a', fontSize:'1rem', marginBottom:'4px' }}>The ONE Thing</h4>
+                          <p style={{ color:'#64748b', fontSize:'0.8rem', marginBottom:'8px' }}>Gary Keller & Jay Papasan</p>
+                          <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
+                            <div style={{ padding:'3px 10px', borderRadius:'20px', background:'#fef3c7', fontSize:'0.72rem', fontWeight:'600', color:'#92400e' }}>Self-Help</div>
+                            <div style={{ padding:'3px 10px', borderRadius:'20px', background:'#ecfdf5', fontSize:'0.72rem', fontWeight:'600', color:'#065f46' }}>{bookPages.length} Pages</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  /* ── PDF-like Book Viewer ── */
+                  <div className="animate-fade-in">
+                    {/* Viewer Toolbar */}
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 20px', background:'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderRadius:'14px 14px 0 0', gap:'12px', flexWrap:'wrap' }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
+                        <button onClick={() => { setBookOpen(false); setBookZoom(1); }} style={{ width:'34px', height:'34px', borderRadius:'8px', border:'1px solid #334155', background:'rgba(255,255,255,0.05)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'#94a3b8' }} title="Close">
+                          <X size={16}/>
+                        </button>
+                        <div style={{ color:'#f1f5f9', fontSize:'0.92rem', fontWeight:'600' }}>📖 The ONE Thing</div>
+                        <div style={{ color:'#64748b', fontSize:'0.8rem' }}>— Chapter 11: The Success Habit</div>
+                      </div>
+                      <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+                        <button onClick={() => setBookZoom(z => Math.max(0.5, z - 0.15))} style={{ width:'32px', height:'32px', borderRadius:'6px', border:'1px solid #334155', background:'rgba(255,255,255,0.05)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'#94a3b8' }}><ZoomOut size={14}/></button>
+                        <span style={{ color:'#94a3b8', fontSize:'0.78rem', minWidth:'40px', textAlign:'center' }}>{Math.round(bookZoom*100)}%</span>
+                        <button onClick={() => setBookZoom(z => Math.min(2, z + 0.15))} style={{ width:'32px', height:'32px', borderRadius:'6px', border:'1px solid #334155', background:'rgba(255,255,255,0.05)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'#94a3b8' }}><ZoomIn size={14}/></button>
+                      </div>
+                    </div>
+
+                    {/* Page Display */}
+                    <div style={{ background:'#374151', padding:'32px 0', display:'flex', justifyContent:'center', alignItems:'flex-start', minHeight:'600px', overflow:'auto', borderRadius:'0 0 14px 14px' }}>
+                      <div style={{ transform:`scale(${bookZoom})`, transformOrigin:'top center', transition:'transform 0.25s ease' }}>
+                        <img src={bookPages[bookPage]} alt={`Page ${bookPage + 1}`}
+                          style={{ maxWidth:'600px', width:'100%', borderRadius:'4px', boxShadow:'0 8px 32px rgba(0,0,0,0.4)', display:'block' }} />
+                      </div>
+                    </div>
+
+                    {/* Page Navigation */}
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:'16px', marginTop:'20px' }}>
+                      <button disabled={bookPage === 0} onClick={() => setBookPage(p => p - 1)}
+                        style={{ display:'flex', alignItems:'center', gap:'6px', padding:'10px 24px', borderRadius:'10px', border:'1px solid #e2e8f0', background: bookPage === 0 ? '#f1f5f9' : '#fff', cursor: bookPage === 0 ? 'default' : 'pointer', fontWeight:'600', color: bookPage === 0 ? '#cbd5e1' : '#475569', fontSize:'0.9rem' }}>
+                        <ChevronLeft size={16}/> Previous
+                      </button>
+                      <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
+                        {bookPages.map((_, i) => (
+                          <button key={i} onClick={() => setBookPage(i)}
+                            style={{ width: bookPage === i ? '32px' : '10px', height:'10px', borderRadius:'20px', border:'none', background: bookPage === i ? 'linear-gradient(90deg,#7c3aed,#ec4899)' : '#cbd5e1', cursor:'pointer', transition:'all 0.3s ease' }} />
+                        ))}
+                      </div>
+                      <button disabled={bookPage === bookPages.length - 1} onClick={() => setBookPage(p => p + 1)}
+                        style={{ display:'flex', alignItems:'center', gap:'6px', padding:'10px 24px', borderRadius:'10px', border:'1px solid #e2e8f0', background: bookPage === bookPages.length - 1 ? '#f1f5f9' : '#fff', cursor: bookPage === bookPages.length - 1 ? 'default' : 'pointer', fontWeight:'600', color: bookPage === bookPages.length - 1 ? '#cbd5e1' : '#475569', fontSize:'0.9rem' }}>
+                        Next <ChevronRight size={16}/>
+                      </button>
+                    </div>
+                    <p style={{ textAlign:'center', marginTop:'8px', color:'#94a3b8', fontSize:'0.82rem' }}>Page {bookPage + 1} of {bookPages.length}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
           </div>
         )}
 

@@ -45,7 +45,7 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      const endpoint = isSignUpMode ? 'https://elevate-backend-2v69.onrender.com/api/auth/register' : 'https://elevate-backend-2v69.onrender.com/api/auth/login';
+      const endpoint = isSignUpMode ? '/api/auth/register' : '/api/auth/login';
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -55,7 +55,7 @@ const Login = () => {
       const data = await response.json();
 
       if (data.success) {
-        login(data.user.email, data.user.name);
+        login(data.user.email, data.user.name, data.token);
         showMessage(isSignUpMode ? 'Registered successfully!' : 'Welcome back to Elevate!');
         setTimeout(() => navigate(from, { replace: true }), 600);
       } else {
@@ -73,14 +73,14 @@ const Login = () => {
     onSuccess: async (tokenResponse) => {
       setIsLoading(true);
       try {
-        const res = await fetch('https://elevate-backend-2v69.onrender.com/api/auth/google', {
+        const res = await fetch('/api/auth/google', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: tokenResponse.access_token }),
         });
         const data = await res.json();
         if (data.success) {
-          login(data.user.email, data.user.name);
+          login(data.user.email, data.user.name, data.token);
           showMessage('Logged in with Google!');
           setTimeout(() => navigate(from, { replace: true }), 600);
         } else {
@@ -158,7 +158,6 @@ const Login = () => {
                     className="form-group"
                   >
                     <div className="input-wrapper">
-                      <span className="input-icon"><User size={18} /></span>
                       <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Full Name" />
                     </div>
                   </motion.div>
@@ -167,15 +166,12 @@ const Login = () => {
 
               <div className="form-group">
                 <div className="input-wrapper">
-                  <span className="input-icon"><User size={18} /></span>
                   <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="you@gmail.com" required />
-                  {formData.email && <CheckCircle2 size={16} className="valid-icon" />}
                 </div>
               </div>
 
               <div className="form-group">
                 <div className="input-wrapper">
-                  <span className="input-icon"><Lock size={18} /></span>
                   <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Password" required />
                 </div>
               </div>

@@ -8,7 +8,7 @@ const useAuthStore = create(
       token: null,
       isAuthenticated: false,
 
-      login: (email, name) => {
+      login: (email, name, serverToken) => {
         const userData = {
           email,
           name: name || email.split('@')[0],
@@ -20,7 +20,7 @@ const useAuthStore = create(
           projects: [],
           experiences: [],
         };
-        set({ token: 'demo-token-' + Date.now(), user: userData, isAuthenticated: true });
+        set({ token: serverToken || 'demo-token-' + Date.now(), user: userData, isAuthenticated: true });
       },
 
       logout: () => set({ token: null, user: null, isAuthenticated: false }),

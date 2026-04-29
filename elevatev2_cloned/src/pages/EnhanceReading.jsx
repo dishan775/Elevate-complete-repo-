@@ -69,8 +69,8 @@ export default function EnhanceReading() {
     <div className="enhance-reading-layout">
       {/* Back Button */}
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-        <button className="er-back-nav" onClick={() => navigate('/v2-home')} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-          <MoveLeft size={16} /> Back to Hub
+        <button className="er-back-nav" onClick={() => navigate('/home')} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+          <MoveLeft size={16} /> Back to Home
         </button>
       </div>
 

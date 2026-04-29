@@ -11,6 +11,7 @@ import LearnProgramming from './pages/LearnProgramming';
 import Tools from './pages/Tools';
 import Resources from './pages/Resources';
 import FocusSession from './pages/FocusSession';
+import EnhanceReading from './pages/EnhanceReading';
 import Dashboard from './pages/Dashboard';
 import AIStudyBuddy from './pages/AIStudyBuddy';
 import ProfilePage from './pages/ProfilePage';
@@ -39,6 +40,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<AuthGuard><HomePage /></AuthGuard>} />
         <Route path="/focus-session" element={<AuthGuard><FocusSession /></AuthGuard>} />
+        <Route path="/enhance-reading" element={<AuthGuard><EnhanceReading /></AuthGuard>} />
         
         {/* Pages with Global V2 Layout (with Navbar) */}
         <Route element={<MainLayout />}>

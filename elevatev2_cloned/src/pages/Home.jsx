@@ -274,7 +274,7 @@ const MODULES = [
     tagColor: '#f43f5e',
     tagBg: 'rgba(244,63,94,0.12)',
     desc: 'Speed-read technical docs with comprehension tracking.',
-    path: '/practice/reading',
+    path: '/enhance-reading',
     Preview: ReadingPreview,
   },
 ];

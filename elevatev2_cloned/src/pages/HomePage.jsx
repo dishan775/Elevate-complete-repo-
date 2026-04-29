@@ -435,7 +435,7 @@ const EV2_MODULES = [
   { title: 'Practice Professional English', emoji: '💬', tag: 'COMMUNICATION', tagColor: '#818cf8', tagBg: 'rgba(129,140,248,0.12)', desc: 'AI scores your tone, clarity and grammar in real-time.', path: '/practice/english', Preview: EnglishPreview },
   { title: 'Learn Programming', emoji: '⌨️', tag: 'CODING', tagColor: '#10b981', tagBg: 'rgba(16,185,129,0.12)', desc: 'Solve DSA challenges with syntax hints and complexity analysis.', path: '/practice/programming', Preview: ProgrammingPreview },
   { title: 'Core Computer Science', emoji: '🧠', tag: 'CS THEORY', tagColor: '#f59e0b', tagBg: 'rgba(245,158,11,0.12)', desc: 'OS, DBMS, Networks — flashcards and mock Q&A.', path: '/practice/cs', Preview: CSPreview },
-  { title: 'Enhance Reading Ability', emoji: '📖', tag: 'READING', tagColor: '#f43f5e', tagBg: 'rgba(244,63,94,0.12)', desc: 'Speed-read technical docs with comprehension tracking.', path: '/practice/reading', Preview: ReadingPreview },
+  { title: 'Enhance Reading Ability', emoji: '📖', tag: 'READING', tagColor: '#f43f5e', tagBg: 'rgba(244,63,94,0.12)', desc: 'Speed-read technical docs with comprehension tracking.', path: '/enhance-reading', Preview: ReadingPreview },
 ];
 
 const EV2_STEPS = [
@@ -481,7 +481,7 @@ const HomePage = () => {
     { id: 1, title: 'Practice Professional English', desc: 'Improve communication skills for interviews & workplace settings.', icon: <MessageSquare size={28} strokeWidth={1.5} />, buttonText: 'Resume', color: '#6366F1', action: () => navigate('/practice/english') },
     { id: 2, title: 'Learn Programming', desc: 'Master Python, JavaScript, and more with hands-on coding exercises.', icon: <Code size={28} strokeWidth={1.5} />, buttonText: 'Continue', color: '#EC4899', action: () => navigate('/practice/programming') },
     { id: 3, title: 'Core Computer Science', desc: 'Explore 8 essential CS topics — ML, DSA, Deep Learning, OS & more.', icon: <Cpu size={28} strokeWidth={1.5} />, buttonText: 'Explore', color: '#10B981', action: () => setCsModalOpen(true) },
-    { id: 4, title: 'Enhance Reading Skills', desc: 'Boost comprehension and reading speed with curated content.', icon: <BookOpen size={28} strokeWidth={1.5} />, buttonText: 'Start', color: '#F59E0B', action: () => navigate('/practice/reading') },
+    { id: 4, title: 'Enhance Reading Skills', desc: 'Boost comprehension and reading speed with curated content.', icon: <BookOpen size={28} strokeWidth={1.5} />, buttonText: 'Start', color: '#F59E0B', action: () => navigate('/enhance-reading') },
   ];
 
   return (

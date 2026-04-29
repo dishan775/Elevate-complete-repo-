@@ -646,7 +646,7 @@ const HomePage = () => {
               </div>
               <div className="focus-setup-right">
                 <div className="focus-presets">
-                  {[{label: '🧠 Deep Work', t: '90m'}, {label: '📚 Study', t: '50m'}, {label: '⚡ Sprint', t: '25m'}].map(m => (
+                  {[{label: 'Deep Work', t: '90m'}, {label: 'Study', t: '50m'}, {label: 'Sprint', t: '25m'}].map(m => (
                     <span key={m.t} className="preset-btn" style={{ pointerEvents: 'none' }}>{m.label} {m.t}</span>
                   ))}
                 </div>

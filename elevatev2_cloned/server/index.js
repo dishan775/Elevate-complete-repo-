@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import OpenAI from 'openai';
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 dotenv.config();
 
@@ -14,6 +17,81 @@ const openai = new OpenAI({
 
 app.use(cors());
 app.use(express.json());
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MONGODB CONNECTION & USER MODEL
+// ═══════════════════════════════════════════════════════════════════════════════
+const JWT_SECRET = process.env.JWT_SECRET || 'elevate-super-secret-jwt-key-2024';
+
+// Connect to MongoDB if URI is available
+if (process.env.MONGO_URI) {
+  mongoose.connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 10000,
+  })
+  .then(() => console.log('✅ MongoDB Connected for Auth'))
+  .catch(err => {
+    console.error(`❌ MongoDB Connection Error: ${err.message}`);
+    console.warn('⚠️ Continuing with in-memory auth fallback');
+  });
+}
+
+// User Schema (only created if mongoose is available)
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: {
+    type: String,
+    required: function() { return !this.googleId; },
+  },
+  googleId: { type: String, sparse: true },
+}, { timestamps: true });
+
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password') || !this.password) return next();
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+userSchema.methods.matchPassword = async function(enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+const User = mongoose.model('User', userSchema);
+
+// In-memory fallback for when MongoDB is not connected
+const memoryDB = {
+  users: [
+    {
+      _id: 'demo-user-001',
+      name: 'Demo User',
+      email: 'test@test.com',
+      password: 'password123',
+      matchPassword: async function(enteredPassword) { return enteredPassword === this.password; }
+    }
+  ],
+};
+
+const MockUser = {
+  async findOne({ email }) {
+    return memoryDB.users.find(u => u.email === email);
+  },
+  async create({ name, email, password }) {
+    const newUser = {
+      _id: Math.random().toString(36).substring(7),
+      name, email, password,
+      matchPassword: async function(enteredPassword) { return enteredPassword === this.password; }
+    };
+    memoryDB.users.push(newUser);
+    return newUser;
+  }
+};
+
+const getEffectiveUser = () => {
+  if (mongoose.connection.readyState === 1) return User;
+  console.warn('Using In-Memory User Database (MongoDB disconnected)');
+  return MockUser;
+};
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // QUESTION HISTORY TRACKING — prevents repeating the same question in a session
@@ -706,6 +784,74 @@ app.post('/api/chat/ask', async (req, res) => {
 
     res.json({ success: true, answer });
   }, 1000); // simulate thinking time
+});
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// AUTH ROUTES — Register, Login
+// ═══════════════════════════════════════════════════════════════════════════════
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    const EffectiveUser = getEffectiveUser();
+
+    const userExists = await EffectiveUser.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ success: false, message: 'User already exists' });
+    }
+
+    const user = await EffectiveUser.create({ name, email, password });
+
+    if (user) {
+      const token = jwt.sign(
+        { id: user._id, email: user.email },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+      res.status(201).json({
+        success: true,
+        token,
+        user: { id: user._id, name: user.name, email: user.email },
+      });
+    } else {
+      res.status(400).json({ success: false, message: 'Invalid user data' });
+    }
+  } catch (error) {
+    console.error('Registration Error:', error);
+    res.status(500).json({ success: false, message: 'Server error during registration' });
+  }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const EffectiveUser = getEffectiveUser();
+
+    const user = await EffectiveUser.findOne({ email });
+
+    if (user && (typeof user.matchPassword === 'function' ? await user.matchPassword(password) : user.password === password)) {
+      const token = jwt.sign(
+        { id: user._id, email: user.email },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+      res.json({
+        success: true,
+        token,
+        user: { id: user._id, name: user.name, email: user.email },
+      });
+    } else {
+      res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+  } catch (error) {
+    console.error('Login Error:', error);
+    res.status(500).json({ success: false, message: 'Server error during login' });
+  }
+});
+
+// Health Check
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', message: 'Elevate Backend is running', mongoConnected: mongoose.connection.readyState === 1 });
 });
 
 

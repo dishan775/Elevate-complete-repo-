@@ -6,6 +6,9 @@ import useAuthStore from '../store/authStore';
 import { useGoogleLogin } from '@react-oauth/google';
 import '../styles/login.css';
 
+// Use deployed backend in production, relative URL in dev (Vite proxy handles it)
+const API_BASE = import.meta.env.DEV ? '' : 'https://elevate-backend-2v69.onrender.com';
+
 const GoogleIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -46,7 +49,7 @@ const Login = () => {
     
     try {
       const endpoint = isSignUpMode ? '/api/auth/register' : '/api/auth/login';
-      const response = await fetch(endpoint, {
+      const response = await fetch(`${API_BASE}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -73,7 +76,7 @@ const Login = () => {
     onSuccess: async (tokenResponse) => {
       setIsLoading(true);
       try {
-        const res = await fetch('/api/auth/google', {
+        const res = await fetch(`${API_BASE}/api/auth/google`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: tokenResponse.access_token }),

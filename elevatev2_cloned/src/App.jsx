@@ -16,6 +16,7 @@ import Dashboard from './pages/Dashboard';
 import AIStudyBuddy from './pages/AIStudyBuddy';
 import ProfilePage from './pages/ProfilePage';
 import CommunityPage from './pages/CommunityPage';
+import SavedNotes from './pages/SavedNotes';
 
 import IntroPage from './pages/IntroPage';
 import HomePage from './pages/HomePage';
@@ -41,6 +42,7 @@ function App() {
         <Route path="/home" element={<AuthGuard><HomePage /></AuthGuard>} />
         <Route path="/focus-session" element={<AuthGuard><FocusSession /></AuthGuard>} />
         <Route path="/enhance-reading" element={<AuthGuard><EnhanceReading /></AuthGuard>} />
+        <Route path="/saved-notes" element={<AuthGuard><SavedNotes /></AuthGuard>} />
         
         {/* Pages with Global V2 Layout (with Navbar) */}
         <Route element={<MainLayout />}>

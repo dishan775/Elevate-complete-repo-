@@ -546,7 +546,7 @@ const HomePage = () => {
           <div className="sidebar-section">
             <div className="sidebar-section-title">Study Tools</div>
             <SidebarItem icon={<BarChart3 size={18} />} label="Analytics" onClick={() => navigate('/dashboard')} />
-            <SidebarItem icon={<Bookmark size={18} />} label="Saved Notes" badge="12" />
+            <SidebarItem icon={<Bookmark size={18} />} label="Saved Notes" badge="12" onClick={() => navigate('/saved-notes')} />
             <SidebarItem icon={<Trophy size={18} />} label="Leaderboard" />
             <SidebarItem icon={<Clock size={18} />} label="Study Planner" />
           </div>

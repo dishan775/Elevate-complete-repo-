@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 
 // Auth Routes
@@ -15,6 +16,9 @@ router.post('/auth/register', async (req, res) => {
 
     // Try DB first
     try {
+      if (mongoose.connection.readyState !== 1) {
+        throw new Error('Database not connected');
+      }
       const userExists = await User.findOne({ email });
       if (userExists) return res.status(400).json({ message: 'User already exists' });
       
@@ -68,6 +72,9 @@ router.post('/auth/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
+      if (mongoose.connection.readyState !== 1) {
+        throw new Error('Database not connected');
+      }
       const user = await User.findOne({ email });
 
       if (user && (await user.matchPassword(password))) {
